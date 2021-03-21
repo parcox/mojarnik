@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": "/Users/bowo/.local/share/virtualenvs/emoo-backend-eCmAy6sJ/bin/python",
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "pylint_django"
+    ],
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+}
