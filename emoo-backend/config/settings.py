@@ -26,13 +26,20 @@ INSTALLED_APPS = [
 
     # Third-party
     'allauth',
-    'allauth.account',
+    # 'allauth.account',
     'crispy_forms',
     'debug_toolbar',
+    'phonenumber_field',
+    'rest_framework',
+    'rest_framework.authtoken',
+    # 'admin_reorder',
+    'django_extensions',
 
     # Local
     'accounts',
     'pages',
+    'emodul',
+    'akademik',
 ]
 
 # MIDDLEWARE
@@ -48,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 # URLS
@@ -63,7 +71,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['templates', str(BASE_DIR.joinpath('templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -108,9 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'id-ID'
 # https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Jakarta'
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-USE_I18N
 USE_I18N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-l10n
@@ -124,7 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 STATIC_ROOT = str(BASE_DIR.joinpath('staticfiles'))
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
-STATIC_URL = '/static/'
+STATIC_URL = '/emoo-static/'
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [str(BASE_DIR.joinpath('static'))]
 # http://whitenoise.evans.io/en/stable/django.html#add-compression-and-caching-support
@@ -171,3 +179,84 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
+
+# MEDIA
+# ------------------------------------------------------------------------------
+MEDIA_URL = '/emoo-media/'
+
+MEDIA_ROOT = str(BASE_DIR.joinpath('media'))
+
+
+# REST FRAMEWORK CONFIGURATION
+# ------------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+
+# ADMIN REORDER CONFIGURATION
+# ------------------------------------------------------------------------------
+ADMIN_REORDER = (
+    # Keep original label and models
+    # 'sites',
+
+    # Rename app
+    # {'app': 'auth', 'label': 'Authorisation'},
+
+    # Reorder app models
+    # {'app': 'emodul', 'models': ('emodul.EModul', 'emodul.EModulDetail',
+    #                              'emodul.EModulAnnotation', 'emodul.EModulBookmark')},
+
+    # {'app': 'akademik', 'models': ('akademik.Jurusan', 'akademik.ProgramStudi',
+    #                              'akademik.MataKuliah')},
+
+    # Exclude models
+    # {'app': 'sites', 'models': ('sites.Site', )},
+
+    # Cross-linked models
+    # {'app': 'auth', 'models': ('auth.User', 'sites.Site')},
+
+    # models with custom name
+    # {'app': 'auth', 'models': (
+    #     'auth.Group',
+    #     {'model': 'auth.User', 'label': 'Staff'},
+    # )},
+)
+
+
+# MY CONSTANTS
+# ------------------------------------------------------------------------------
+D1 = 'D-I'
+D2 = 'D-II'
+D3 = 'D-III'
+D4 = 'D-IV'
+JENJANG = (
+    (D1, 'D-I'),
+    (D2, 'D-II'),
+    (D3, 'D-III'),
+    (D4, 'D-IV'),
+)
+
+S1 = '1'
+S2 = '2'
+S3 = '3'
+S4 = '4'
+S5 = '5'
+S6 = '6'
+S7 = '7'
+S8 = '8'
+SEMESTER = (
+    (S1, '1'),
+    (S2, '2'),
+    (S3, '3'),
+    (S4, '4'),
+    (S5, '5'),
+    (S6, '6'),
+    (S7, '7'),
+    (S8, '8'),
+)
