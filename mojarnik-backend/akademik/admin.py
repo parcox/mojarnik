@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import Jurusan, ProgramStudi, MataKuliah
 
 
-admin.site.site_header = "E-Modul (EMOO) Admin"
-admin.site.site_title = "E-Modul(EMOO) Admin Portal"
-admin.site.index_title = "Selamat datang di EMOO Backend"
+admin.site.site_header = "Modul Ajar Elektronik (Mojarnik) Admin"
+admin.site.site_title = "Modul Ajar Elektronik (Mojarnik) Admin Portal"
+admin.site.index_title = "Selamat datang di Mojarnik Backend"
 
 @admin.register(ProgramStudi)
 class ProgramStudiAdmin(admin.ModelAdmin):

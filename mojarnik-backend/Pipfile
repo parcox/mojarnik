@@ -16,6 +16,8 @@ django-modeladmin-reorder = "*"
 django-extensions = "~=3.1"
 pyparsing = "*"
 pydot = "*"
+django-phonenumber-field = {version = "~=5.0", extras = ["phonenumbers"]}
+djangorestframework = "*"
 
 [requires]
 python_version = "3.8"
