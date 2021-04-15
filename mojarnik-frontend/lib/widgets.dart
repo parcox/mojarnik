@@ -6,7 +6,14 @@ class Module extends StatelessWidget {
   final String date;
   final String title;
   final int jumlahFile;
-  const Module({Key key, this.imageName, this.makul,this.date,this.title, this.jumlahFile}) : super(key: key);
+  const Module(
+      {Key key,
+      this.imageName,
+      this.makul,
+      this.date,
+      this.title,
+      this.jumlahFile})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return PhysicalModel(
@@ -54,10 +61,9 @@ class Module extends StatelessWidget {
                             child: Text(
                               this.makul,
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w500
-                              ),
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
@@ -66,7 +72,11 @@ class Module extends StatelessWidget {
                             Expanded(
                               child: Row(
                                 children: [
-                                  Icon(Icons.date_range, color: Colors.white,size: 15,),
+                                  Icon(
+                                    Icons.date_range,
+                                    color: Colors.white,
+                                    size: 15,
+                                  ),
                                   Text(
                                     this.date,
                                     style: TextStyle(
@@ -76,10 +86,10 @@ class Module extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              this.jumlahFile.toString()+" Files",
+                              this.jumlahFile.toString() + " Files",
                               textAlign: TextAlign.right,
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 12),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             )
                           ],
                         )
@@ -114,6 +124,31 @@ class Module extends StatelessWidget {
               ),
             )
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class DrawerMenu extends StatelessWidget {
+  final String title;
+  final Function onPressed;
+  const DrawerMenu({Key key, @required this.title, @required this.onPressed}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        onPressed();
+      },
+      child: Container(
+        alignment: Alignment.center,
+        width: 230,
+        height: 30,
+        // color: Colors.red,
+        child: Text(
+          this.title,
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w300, color: Colors.black),
         ),
       ),
     );

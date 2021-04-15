@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mojarnik/home.dart';
+import 'package:ndialog/ndialog.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,6 +33,76 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController tfUsername = TextEditingController();
   TextEditingController tfPassword = TextEditingController();
+
+  logIn(String username, String password) {
+    if (username == "" || password == "") {
+      return NAlertDialog(
+        dialogStyle: DialogStyle(backgroundColor: Colors.white),
+        title: Text(
+          "Peringatan",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color(0xff0ABDB6),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          "Username atau password tidak boleh kosong!",
+          style: TextStyle(color: Color(0xff0ABDB6)),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              "Kembali Login",
+              style: TextStyle(
+                color: Color(0xff0ABDB6),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ).show(context);
+    }
+    if (username == "tes" || password == "tes") {
+      return Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (BuildContext context) => HomePage(),
+        ),
+      );
+    }else{
+      return NAlertDialog(
+        dialogStyle: DialogStyle(backgroundColor: Colors.white),
+        title: Text(
+          "Peringatan",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color(0xff0ABDB6),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          "Username atau password salah!",
+          style: TextStyle(color: Color(0xff0ABDB6)),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              "Kembali Login",
+              style: TextStyle(
+                color: Color(0xff0ABDB6),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ).show(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -171,8 +242,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (BuildContext context) => HomePage()));
+                    logIn(tfUsername.text, tfPassword.text);
                   },
                   child: Container(
                     height: 40,

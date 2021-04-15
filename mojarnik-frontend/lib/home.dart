@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mojarnik/about3.dart';
 import 'package:mojarnik/home1.dart';
+import 'package:mojarnik/main.dart';
+import 'package:mojarnik/settings2.dart';
+import 'package:mojarnik/widgets.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,6 +13,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   int page = 0;
+  logOut() {
+    return Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (BuildContext context) => LoginPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,15 +36,6 @@ class _HomePageState extends State<HomePage> {
                 color: Color(0xff0ABDB6)),
           ),
         ),
-        // leading: FlatButton(
-        //   onPressed: () {
-        //     scaffoldKey.currentState.openDrawer();
-        //   },
-        //   child: Icon(
-        //     Icons.menu,
-        //     color: Colors.grey,
-        //   ),
-        // ),
         leading: TextButton(
           onPressed: () {
             scaffoldKey.currentState.openDrawer();
@@ -66,95 +69,142 @@ class _HomePageState extends State<HomePage> {
           color: Colors.white,
           width: 230,
           height: double.infinity,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  color: Colors.white,
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Image(
-                          height: 30,
-                          width: 30,
-                          image: AssetImage("asset/polnep.png"),
-                        ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                color: Colors.white,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Image(
+                        height: 30,
+                        width: 30,
+                        image: AssetImage("asset/polnep.png"),
                       ),
-                      Text(
-                        "MOJARNIK",
-                        style: TextStyle(
-                            letterSpacing: 2,
-                            fontSize: 25,
-                            fontFamily: "StormFaze",
-                            color: Color(0xff0ABDB6)),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(
-                  color: Colors.black.withOpacity(0.6),
-                ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage("asset/markZuck.png"),
                     ),
+                    Text(
+                      "MOJARNIK",
+                      style: TextStyle(
+                          letterSpacing: 2,
+                          fontSize: 25,
+                          fontFamily: "StormFaze",
+                          color: Color(0xff0ABDB6)),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(
+                color: Colors.black.withOpacity(0.5),
+              ),
+              Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage("asset/markZuck.png"),
                   ),
                 ),
-                SizedBox(
-                  height: 10,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Mark Zuckerberg",
+                style: TextStyle(
+                    fontSize: 17,
+                    color: Color(0xff818181),
+                    fontWeight: FontWeight.w400),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                "3201816100",
+                style: TextStyle(
+                    fontSize: 17,
+                    color: Color(0xff818181),
+                    fontWeight: FontWeight.w400),
+              ),
+              Divider(
+                color: Colors.black.withOpacity(0.5),
+              ),
+              DrawerMenu(
+                title: "Home",
+                onPressed: () {
+                  setState(() {
+                    page = 0;
+                  });
+                },
+              ),
+              DrawerMenu(
+                title: "Settings",
+                onPressed: () {
+                  setState(() {
+                    page = 1;
+                  });
+                },
+              ),
+              DrawerMenu(
+                title: "About",
+                onPressed: () {
+                  setState(() {
+                    page = 2;
+                  });
+                },
+              ),
+              Expanded(child: Container()),
+              // Container(
+              //     width: 300,
+              //     height: 40,
+              //     color: Colors.black,
+              //   child: TextButton(
+              //     style: ButtonStyle(),
+              //     onPressed: () {
+              //       logOut();
+              //     },
+              //     child: Container(
+              //       color: Colors.red.withOpacity(0.8),
+              //       child: Text(
+              //         "Log Out",
+              //         style: TextStyle(color: Colors.white),
+              //       ),
+              //       alignment: Alignment.center,
+              //     ),
+              //   ),
+              // ),
+              TextButton(
+                onPressed: () {
+                  logOut();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.power_settings_new, color: Colors.red),
+                    SizedBox(width: 3,),
+                    Text(
+                      "Log Out",
+                      style: TextStyle(color: Colors.red, fontSize: 18),
+                    ),
+                  ],
                 ),
-                Text(
-                  "Mark Zuckerberg",
-                  style: TextStyle(fontSize: 17, color: Color(0xff818181)),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  "3201816100",
-                  style: TextStyle(fontSize: 17, color: Color(0xff818181)),
-                ),
-                Divider(),
-                Container(
-                  height: 50,
-                  color: Colors.red,
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.red,
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.red,
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.red,
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.red,
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.red,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
       body: <Widget>[
         FirstPage(),
+        SecondPage(),
+        ThirdPage(),
       ][page],
     );
   }
