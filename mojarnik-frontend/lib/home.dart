@@ -4,6 +4,7 @@ import 'package:mojarnik/home1.dart';
 import 'package:mojarnik/main.dart';
 import 'package:mojarnik/settings2.dart';
 import 'package:mojarnik/widgets.dart';
+import 'package:ndialog/ndialog.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +14,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   int page = 0;
+  String helpContent =
+      "\tLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed molestie congue orci, pellentesque rhoncus eros sollicitudin quis. Quisque varius tempus nisl gravida scelerisque. Nullam diam arcu, consequat a massa vehicula, vehicula dictum urna. Nam enim nunc, malesuada eu tincidunt sit amet, vehicula vitae enim. Sed quis lobortis odio. In fermentum facilisis magna, ac dignissim nulla. Aenean id scelerisque nisl, at egestas ante. Quisque imperdiet, justo quis hendrerit condimentum, tortor ex varius odio, eu fermentum velit quam eget sapien. Donec scelerisque, tortor non elementum vestibulum, augue libero scelerisque eros, vitae eleifend elit eros sit amet magna. Morbi molestie eros non purus maximus, quis egestas ante tincidunt. Ut interdum sapien at tellus finibus molestie. Duis euismod eros nisl. Aenean scelerisque justo eget ultrices interdum. Vestibulum a nisi orci. Quisque facilisis dolor eu pellentesque euismod.";
   logOut() {
     return Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -50,7 +53,31 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              return NAlertDialog(
+                title: Text(
+                  "Help",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Color(0xff0ABDB6)),
+                ),
+                content: Container(
+                  child: Text(helpContent, textAlign: TextAlign.justify),
+                ),
+                dismissable: false,
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "I understand",
+                      style: TextStyle(color: Color(0xff0ABDB6)),
+                    ),
+                  ),
+                ],
+              ).show(context);
+            },
             // child: Image(image: AssetImage("asset/help.png"),)
             child: Image(
               height: 30,
@@ -173,7 +200,9 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.power_settings_new, color: Colors.red),
-                    SizedBox(width: 3,),
+                    SizedBox(
+                      width: 3,
+                    ),
                     Text(
                       "Log Out",
                       style: TextStyle(color: Colors.red, fontSize: 18),

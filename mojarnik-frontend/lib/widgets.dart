@@ -156,7 +156,7 @@ class DrawerMenu extends StatelessWidget {
         child: Text(
           this.title,
           style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w300, color: Colors.black),
+              fontSize: 15, fontWeight: FontWeight.w300, color: Colors.black),
         ),
       ),
     );
