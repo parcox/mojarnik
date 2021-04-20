@@ -143,6 +143,7 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     page = 0;
                   });
+                  Navigator.pop(context);
                 },
               ),
               DrawerMenu(
@@ -151,6 +152,7 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     page = 1;
                   });
+                  Navigator.pop(context);
                 },
               ),
               DrawerMenu(
@@ -159,28 +161,10 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     page = 2;
                   });
+                  Navigator.pop(context);
                 },
               ),
               Expanded(child: Container()),
-              // Container(
-              //     width: 300,
-              //     height: 40,
-              //     color: Colors.black,
-              //   child: TextButton(
-              //     style: ButtonStyle(),
-              //     onPressed: () {
-              //       logOut();
-              //     },
-              //     child: Container(
-              //       color: Colors.red.withOpacity(0.8),
-              //       child: Text(
-              //         "Log Out",
-              //         style: TextStyle(color: Colors.white),
-              //       ),
-              //       alignment: Alignment.center,
-              //     ),
-              //   ),
-              // ),
               TextButton(
                 onPressed: () {
                   logOut();
