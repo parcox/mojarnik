@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mojarnik/search.dart';
 import 'package:mojarnik/widgets.dart';
 
 class FirstPage extends StatefulWidget {
@@ -152,7 +153,12 @@ class _FirstPageState extends State<FirstPage> {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: TextButton(
-              onPressed: (){},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => SearchPage()));
+              },
               child: PhysicalModel(
                 shape: BoxShape.circle,
                 color: Colors.transparent,

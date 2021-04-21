@@ -251,3 +251,127 @@ class ModuleFiles extends StatelessWidget {
     );
   }
 }
+
+class SearchWidget extends StatelessWidget {
+  final String imageName;
+  final String makul;
+  final String date;
+  final String title;
+  final int jumlahFile;
+  const SearchWidget(
+      {Key key,
+      this.imageName,
+      this.makul,
+      this.date,
+      this.title,
+      this.jumlahFile})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: PhysicalModel(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(15),
+        elevation: 5.0,
+        shadowColor: Colors.black,
+        child: Stack(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 180,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(this.imageName),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+            Opacity(
+              opacity: 0.8,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 180,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.black.withOpacity(0.4),
+                      Colors.black,
+                      Colors.black.withOpacity(0.4),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 180,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(this.makul,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold)),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(this.title,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 30,
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.date_range,
+                                  color: Colors.white,
+                                ),
+                                Text(
+                                  this.date,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            this.jumlahFile.toString() + " Files",
+                            textAlign: TextAlign.right,
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
