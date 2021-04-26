@@ -269,7 +269,7 @@ class SearchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: PhysicalModel(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(15),
@@ -371,6 +371,44 @@ class SearchWidget extends StatelessWidget {
             )
           ],
         ),
+      ),
+    );
+  }
+}
+
+class SettingsItem extends StatelessWidget {
+  final String title;
+  final String content;
+  final bool isEditable;
+  const SettingsItem({Key key, @required this.title, @required this.content, @required this.isEditable}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              this.title,
+              style: TextStyle(
+                color: Color(0xff939393),
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  this.content,
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              this.isEditable? Icon(Icons.edit) : Container(),
+            ],
+          )
+        ],
       ),
     );
   }

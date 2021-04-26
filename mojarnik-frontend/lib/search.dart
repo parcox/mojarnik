@@ -64,30 +64,33 @@ class _SearchPageState extends State<SearchPage> {
           backgroundColor: Colors.white,
         ),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              SearchWidget(
-                makul: "Pemrograman Web",
-                title: "Praktikum 1",
-                date: "13 March 2021",
-                jumlahFile: 13,
-                imageName: "asset/website.jpg",
-              ),
-              SearchWidget(
-                makul: "Sistem Operasi",
-                title: "Bahasa Mesin",
-                date: "10 March 2021",
-                jumlahFile: 34,
-                imageName: "asset/binary.jpg",
-              ),
-              SearchWidget(
-                makul: "Matematika",
-                title: "Metode Krammer",
-                date: "8 March 2021",
-                jumlahFile: 5,
-                imageName: "asset/math.jpg",
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 7),
+            child: Column(
+              children: [
+                SearchWidget(
+                  makul: "Pemrograman Web",
+                  title: "Praktikum 1",
+                  date: "13 March 2021",
+                  jumlahFile: 13,
+                  imageName: "asset/website.jpg",
+                ),
+                SearchWidget(
+                  makul: "Sistem Operasi",
+                  title: "Bahasa Mesin",
+                  date: "10 March 2021",
+                  jumlahFile: 34,
+                  imageName: "asset/binary.jpg",
+                ),
+                SearchWidget(
+                  makul: "Matematika",
+                  title: "Metode Krammer",
+                  date: "8 March 2021",
+                  jumlahFile: 5,
+                  imageName: "asset/math.jpg",
+                ),
+              ],
+            ),
           ),
         ),
       ),
