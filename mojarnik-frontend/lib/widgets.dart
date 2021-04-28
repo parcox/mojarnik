@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mojarnik/moduleDetails.dart';
+import 'package:mojarnik/read.dart';
 
 class Module extends StatelessWidget {
   final String imageName;
@@ -170,7 +171,16 @@ class ModuleFiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => ReadingPage(
+                title: this.title,
+                pdf: "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+              ),
+            ));
+      },
       child: PhysicalModel(
         color: Colors.transparent,
         shadowColor: Colors.black,
@@ -380,7 +390,12 @@ class SettingsItem extends StatelessWidget {
   final String title;
   final String content;
   final bool isEditable;
-  const SettingsItem({Key key, @required this.title, @required this.content, @required this.isEditable}) : super(key: key);
+  const SettingsItem(
+      {Key key,
+      @required this.title,
+      @required this.content,
+      @required this.isEditable})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -405,7 +420,7 @@ class SettingsItem extends StatelessWidget {
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-              this.isEditable? Icon(Icons.edit) : Container(),
+              this.isEditable ? Icon(Icons.edit) : Container(),
             ],
           )
         ],
