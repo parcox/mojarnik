@@ -167,7 +167,8 @@ class DrawerMenu extends StatelessWidget {
 class ModuleFiles extends StatelessWidget {
   final String title;
   final int jumlahPage;
-  const ModuleFiles({Key key, this.title, this.jumlahPage}) : super(key: key);
+  final int page;
+  const ModuleFiles({Key key, this.title, this.jumlahPage, this.page}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -178,6 +179,7 @@ class ModuleFiles extends StatelessWidget {
               builder: (BuildContext context) => ReadingPage(
                 title: this.title,
                 pdf: "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+                page: this.page,
               ),
             ));
       },

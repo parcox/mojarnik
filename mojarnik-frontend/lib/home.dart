@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mojarnik/about3.dart';
+import 'package:mojarnik/bookmarks4.dart';
 import 'package:mojarnik/home1.dart';
 import 'package:mojarnik/main.dart';
 import 'package:mojarnik/settings2.dart';
@@ -219,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 DrawerMenu(
-                  title: "Settings",
+                  title: "Bookmarks",
                   onPressed: () {
                     setState(() {
                       page = 1;
@@ -228,10 +229,19 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 DrawerMenu(
-                  title: "About",
+                  title: "Settings",
                   onPressed: () {
                     setState(() {
                       page = 2;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                DrawerMenu(
+                  title: "About",
+                  onPressed: () {
+                    setState(() {
+                      page = 3;
                     });
                     Navigator.pop(context);
                   },
@@ -261,6 +271,7 @@ class _HomePageState extends State<HomePage> {
         ),
         body: <Widget>[
           FirstPage(),
+          FourthPage(),
           SecondPage(),
           ThirdPage(),
         ][page],

@@ -86,10 +86,12 @@ class _ModuleDetailsState extends State<ModuleDetails> {
               ModuleFiles(
                 title: "Cover",
                 jumlahPage: 1,
+                page: 1,
               ),
               ModuleFiles(
                 title: "BAB I",
                 jumlahPage: 5,
+                page: 1,
               ),
             ],
           ),
