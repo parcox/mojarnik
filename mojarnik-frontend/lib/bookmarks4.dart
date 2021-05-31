@@ -14,22 +14,27 @@ class _FourthPageState extends State<FourthPage> {
       body: Container(
         child: Column(
           children: [
-            Text("Bookmarks"),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => ReadingPage(
-                      pdf:
-                          "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
-                      title: "Tes",
-                      page: 5,
-                    ),
-                  ),
-                );
-              },
-              child: Text("Goto page 5"),
-            )
+            BookmarksWidget(
+              moduleTitle: "Pemrograman Web",
+              moduleSubtitle: "Praktikum 1",
+              moduleDetailTitle: "Latihan 1",
+              page: 5,
+            ),
+            // TextButton(
+            //   onPressed: () {
+            //     Navigator.of(context).push(
+            //       MaterialPageRoute(
+            //         builder: (BuildContext context) => ReadingPage(
+            //           pdf:
+            //               "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+            //           title: "Tes",
+            //           page: 5,
+            //         ),
+            //       ),
+            //     );
+            //   },
+            //   child: Text("Goto page 5"),
+            // )
           ],
         ),
       ),

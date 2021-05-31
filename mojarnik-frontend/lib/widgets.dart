@@ -168,7 +168,8 @@ class ModuleFiles extends StatelessWidget {
   final String title;
   final int jumlahPage;
   final int page;
-  const ModuleFiles({Key key, this.title, this.jumlahPage, this.page}) : super(key: key);
+  const ModuleFiles({Key key, this.title, this.jumlahPage, this.page})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -178,7 +179,8 @@ class ModuleFiles extends StatelessWidget {
             MaterialPageRoute(
               builder: (BuildContext context) => ReadingPage(
                 title: this.title,
-                pdf: "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+                pdf:
+                    "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
                 page: this.page,
               ),
             ));
@@ -426,6 +428,113 @@ class SettingsItem extends StatelessWidget {
             ],
           )
         ],
+      ),
+    );
+  }
+}
+
+class BookmarksWidget extends StatelessWidget {
+  final String moduleTitle;
+  final String moduleSubtitle;
+  final String moduleDetailTitle;
+  final int page;
+  const BookmarksWidget({
+    Key key,
+    @required this.moduleTitle,
+    @required this.moduleSubtitle,
+    @required this.moduleDetailTitle,
+    @required this.page,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    // TextButton(
+    //   onPressed: () {
+    //
+    //   },
+    //   child: Text("Goto page 5"),
+    // )
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) => ReadingPage(
+              pdf:
+                  "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+              title: this.moduleDetailTitle,
+              page: this.page,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 2, left: 3, right: 3),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xff0083B0),
+              Color(0xff00B4DB),
+              Color(0xff0083B0),
+            ],
+          ),
+        ),
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height / 7,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Mata Kuliah "+this.moduleTitle,
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Module "+this.moduleSubtitle,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                "On "+this.moduleDetailTitle+"'s File",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                "Page " + this.page.toString(),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // Icon(Icons.date_range, size: 15, color: Colors.white,),
+                    Text(
+                      "Bookmarked on 5 March 2021",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
