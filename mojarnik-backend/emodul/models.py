@@ -11,7 +11,8 @@ class EModul(models.Model):
     mata_kuliah = models.ForeignKey("akademik.MataKuliah", verbose_name=_(
         'Mata kuliah'), on_delete=models.CASCADE, related_name='emodul')
     penulis = models.ForeignKey(User, verbose_name=_(
-        "Penulis"), on_delete=models.CASCADE, null=True, blank=True, related_name='emodul')
+        "Uploader"), on_delete=models.CASCADE, null=True, blank=True, related_name='emodul')
+    tanggal = models.DateField(verbose_name=_("Tanggal Upload"), auto_now=True)
 
     class Meta:
         verbose_name = 'eModul'
@@ -26,7 +27,8 @@ class EModulDetail(models.Model):
     judul = models.CharField(_("Judul dokumen"), max_length=50)
     jumlah_halaman = models.SmallIntegerField(
         _("Jumlah halaman"), null=True, blank=True)
-    file = models.FileField(_("File"), upload_to=None, max_length=100)
+    # file = models.FileField(_("File"), upload_to=None, max_length=100)
+    file = models.FileField(_("File"), null=True, blank=True, upload_to=None, max_length=100)
 
     class Meta:
         verbose_name = 'eModul detail'
@@ -61,6 +63,21 @@ class EModulBookmark(models.Model):
     class Meta:
         verbose_name = 'eModul bookmark'
         verbose_name_plural = 'eModul bookmark'
+
+    def __str__(self):
+        return f'{self.emodul.judul} {self.user.username}'
+
+
+class EModulComment(models.Model):
+    dokumen = models.ForeignKey("EModulDetail", verbose_name=_(
+        "EModul"), on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, verbose_name=_(
+        "Pengguna"), on_delete=models.CASCADE, related_name='comments')
+    comment = models.TextField(_("Komentar"))
+
+    class Meta:
+        verbose_name = 'eModul comment'
+        verbose_name_plural = 'eModul comment'
 
     def __str__(self):
         return f'{self.emodul.judul} {self.user.username}'

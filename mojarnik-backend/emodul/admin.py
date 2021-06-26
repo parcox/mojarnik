@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import EModul, EModulDetail, EModulBookmark, EModulAnnotation
+from .models import EModul, EModulComment, EModulDetail, EModulBookmark, EModulAnnotation
 
 @admin.register(EModul)
 class EModulAdmin(admin.ModelAdmin):
-    list_display = ['judul', 'mata_kuliah', 'penulis']
+    list_display = ['judul', 'mata_kuliah', 'penulis','tanggal']
 
 @admin.register(EModulDetail)
 class EModulDetailAdmin(admin.ModelAdmin):
@@ -16,6 +16,10 @@ class EModulAnnotationAdmin(admin.ModelAdmin):
 @admin.register(EModulBookmark)
 class EModulBookmarkAdmin(admin.ModelAdmin):
     list_display = ['dokumen', 'user', 'halaman']
+
+@admin.register(EModulComment)
+class EModulCommentAdmin(admin.ModelAdmin):
+    list_display = ['dokumen', 'user', 'comment']
 
 
 

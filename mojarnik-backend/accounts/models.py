@@ -12,18 +12,26 @@ from django.conf import settings
 class CustomUser(AbstractUser):
     MAHASISWA = 1
     DOSEN = 2
+    PRIA = 1
+    WANITA = 2
     ROLE_CHOICES = (
         (MAHASISWA, 'Mahasiswa'),
         (DOSEN, 'Dosen'),
+    )
+    GENDER =(
+        (PRIA, 'Pria'),
+        (WANITA, 'Wanita'),
     )
     DEFAULT_FOTO_PROFIL = 'images/foto_profil/default.jpg'
     # untuk autocreate account mahasiswa dari front end app
     role = models.PositiveSmallIntegerField(
         'Role', choices=ROLE_CHOICES, default=MAHASISWA)
+    gender = models.PositiveSmallIntegerField(
+        'Gender', choices=GENDER, default=PRIA)
     no_hp = PhoneNumberField(
         'Nomor HP/WA', help_text='Gunakan format internasional (+628XXXXXX)', default='+62123456789')
-    # foto = models.ImageField(
-    #     'Foto', upload_to="images/foto_profil/", default=DEFAULT_FOTO_PROFIL, null=True, blank=True)
+    foto = models.ImageField(
+        'Foto', upload_to="images/foto_profil/", default=DEFAULT_FOTO_PROFIL, null=True, blank=True)
     profil_user_lengkap = models.BooleanField(
         'Profil user lengkap', default=False)
 
