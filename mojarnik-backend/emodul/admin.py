@@ -3,7 +3,7 @@ from .models import EModul, EModulComment, EModulDetail, EModulBookmark, EModulA
 
 @admin.register(EModul)
 class EModulAdmin(admin.ModelAdmin):
-    list_display = ['judul', 'mata_kuliah', 'penulis','tanggal']
+    list_display = ['mata_kuliah', 'judul', 'jumlah_modul', 'penulis','tanggal']
 
 @admin.register(EModulDetail)
 class EModulDetailAdmin(admin.ModelAdmin):
@@ -15,7 +15,7 @@ class EModulAnnotationAdmin(admin.ModelAdmin):
 
 @admin.register(EModulBookmark)
 class EModulBookmarkAdmin(admin.ModelAdmin):
-    list_display = ['dokumen', 'user', 'halaman']
+    list_display = ['dokumen', 'user', 'halaman','tanggal']
 
 @admin.register(EModulComment)
 class EModulCommentAdmin(admin.ModelAdmin):
