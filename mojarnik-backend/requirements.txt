@@ -3,3 +3,7 @@ django-allauth==0.43.0
 django-crispy-forms==1.10.0
 django-debug-toolbar==3.2
 whitenoise==5.2
+django-rest-framework==0.1.0
+django-phonenumber-field==5.2.0
+drf-generators==0.5.0
+django-extensions==3.1.3
