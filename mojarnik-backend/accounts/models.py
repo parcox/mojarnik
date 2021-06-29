@@ -30,8 +30,8 @@ class CustomUser(AbstractUser):
         'Gender', choices=GENDER, default=PRIA)
     no_hp = PhoneNumberField(
         'Nomor HP/WA', help_text='Gunakan format internasional (+628XXXXXX)', default='+62123456789')
-    foto = models.ImageField(
-        'Foto', upload_to="images/foto_profil/", default=DEFAULT_FOTO_PROFIL, null=True, blank=True)
+    # foto = models.ImageField(
+    #     'Foto', upload_to="images/foto_profil/", default=DEFAULT_FOTO_PROFIL, null=True, blank=True)
     profil_user_lengkap = models.BooleanField(
         'Profil user lengkap', default=False)
 
