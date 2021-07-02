@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:mojarnik/module.dart';
 import 'package:mojarnik/search.dart';
 import 'package:mojarnik/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirstPage extends StatefulWidget {
   @override
@@ -8,7 +14,55 @@ class FirstPage extends StatefulWidget {
 }
 
 class _FirstPageState extends State<FirstPage> {
+  int jumlahModul;
+  SharedPreferences sharedPreferences;
+  List<Map<String, dynamic>> listMakul = [
+    {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
+    {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
+    {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
+    {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
+  ];
+  List mapResponse;
+
+  Future<List<Modules>> getModules() async {
+    http.Response response;
+    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
+    //     as Uri;
+    try {
+      response = await http.get(
+          Uri.parse(
+              "http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/"),
+          headers: {
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'token ' + sharedPreferences.getString("token")
+          });
+      if (response.statusCode == 200) {
+        mapResponse = json.decode(response.body);
+        if (jumlahModul==null){
+          setState(() {
+            jumlahModul=mapResponse.length;
+          });
+        }
+        return mapResponse.map((e) => Modules.fromJson(e)).toList().cast();
+      }
+      
+    return null;
+    } catch (e) {
+    }
+  }
+
+  initPreference() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {});
+  }
+
   @override
+  void initState() {
+    super.initState();
+    initPreference();
+  }
+
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -71,7 +125,7 @@ class _FirstPageState extends State<FirstPage> {
                           ),
                         ),
                         Text(
-                          "Semester V",
+                          "Semester VI",
                           style: TextStyle(
                               fontSize: 20,
                               color: Colors.white,
@@ -106,7 +160,7 @@ class _FirstPageState extends State<FirstPage> {
                         width: 2,
                       ),
                       Text(
-                        "10 Modules Available",
+                        "$jumlahModul Modules Available",
                         style: TextStyle(fontSize: 15, color: Colors.white),
                       )
                     ],
@@ -115,35 +169,47 @@ class _FirstPageState extends State<FirstPage> {
               ),
             )
           ],
-          body: GridView.count(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            crossAxisSpacing: 5,
-            mainAxisSpacing: 5,
-            crossAxisCount: 2,
-            children: [
-              Module(
-                date: "13 March 2021",
-                imageName: "asset/website.jpg",
-                jumlahFile: 13,
-                makul: "Pemrograman Web",
-                title: "Praktikum 1",
-              ),
-              Module(
-                date: "10 March 2021",
-                imageName: "asset/binary.jpg",
-                jumlahFile: 34,
-                makul: "Sistem Operasi",
-                title: "Bahasa Mesin",
-              ),
-              Module(
-                date: "8 March 2021",
-                imageName: "asset/math.jpg",
-                jumlahFile: 5,
-                makul: "Matematika",
-                title: "Metode Krammer",
-              ),
-            ],
+          body: FutureBuilder<List<Modules>>(
+            future: getModules(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                var modul = List.from(snapshot.data);
+                return GridView.count(
+                    padding: EdgeInsets.symmetric(horizontal: 2),
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                    crossAxisCount: 2,
+                    children: modul
+                        .map((e) => Module(
+                              modul: e,
+                            ))
+                        .toList());
+              }
+
+              return Container();
+            },
           ),
+          // Module(
+          //   date: "13 March 2021",
+          //   imageName: "asset/website.jpg",
+          //   jumlahFile: 13,
+          //   makul: "Pemrograman Web",
+          //   title: "Praktikum 1",
+          // ),
+          // Module(
+          //   date: "10 March 2021",
+          //   imageName: "asset/binary.jpg",
+          //   jumlahFile: 34,
+          //   makul: "Sistem Operasi",
+          //   title: "Bahasa Mesin",
+          // ),
+          // Module(
+          //   date: "8 March 2021",
+          //   imageName: "asset/math.jpg",
+          //   jumlahFile: 5,
+          //   makul: "Matematika",
+          //   title: "Metode Krammer",
+          // ),
         ),
         Container(
           width: MediaQuery.of(context).size.width,

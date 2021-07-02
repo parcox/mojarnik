@@ -4,8 +4,12 @@ import 'package:mojarnik/bookmarks4.dart';
 import 'package:mojarnik/home1.dart';
 import 'package:mojarnik/main.dart';
 import 'package:mojarnik/settings2.dart';
+import 'package:mojarnik/user.dart';
 import 'package:mojarnik/widgets.dart';
 import 'package:ndialog/ndialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,10 +17,47 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List _gender = ["Perempuan", "Laki-laki"];
+  String user_name;
+  SharedPreferences sharedPreferences;
   var scaffoldKey = GlobalKey<ScaffoldState>();
   int page = 0;
-  String helpContent =
-      "\tLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed molestie congue orci, pellentesque rhoncus eros sollicitudin quis. Quisque varius tempus nisl gravida scelerisque. Nullam diam arcu, consequat a massa vehicula, vehicula dictum urna. Nam enim nunc, malesuada eu tincidunt sit amet, vehicula vitae enim. Sed quis lobortis odio. In fermentum facilisis magna, ac dignissim nulla. Aenean id scelerisque nisl, at egestas ante. Quisque imperdiet, justo quis hendrerit condimentum, tortor ex varius odio, eu fermentum velit quam eget sapien. Donec scelerisque, tortor non elementum vestibulum, augue libero scelerisque eros, vitae eleifend elit eros sit amet magna. Morbi molestie eros non purus maximus, quis egestas ante tincidunt. Ut interdum sapien at tellus finibus molestie. Duis euismod eros nisl. Aenean scelerisque justo eget ultrices interdum. Vestibulum a nisi orci. Quisque facilisis dolor eu pellentesque euismod.";
+  String helpContent =""" 
+  Tes
+  Tes
+  Tes
+  """;
+  
+
+  List mapResponse;
+  getUser() async {
+    var jsonData = null;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    http.Response response;
+    try {
+      if (response.statusCode == 200) {
+        jsonData = response.body;
+        String jsonDataString = jsonData.toString();
+        final jsonDataa = jsonDecode(jsonDataString);
+        sharedPreferences.setString("user_name",
+            jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+        sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
+        sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+        setState(() {
+          
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  initPreference() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {});
+  }
+
   logOut() {
     return NAlertDialog(
       title: Text("Are you sure ?"),
@@ -24,12 +65,11 @@ class _HomePageState extends State<HomePage> {
       actions: [
         TextButton(
           onPressed: () {
+            sharedPreferences.clear();
+            sharedPreferences.commit();
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (BuildContext context) => LoginPage(),
-              ),
-              ModalRoute.withName("/")
-            );
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (Route<dynamic> route) => false);
           },
           child: Text(
             "Yes",
@@ -48,31 +88,39 @@ class _HomePageState extends State<HomePage> {
       ],
     ).show(context);
   }
+
   Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: context,
-      builder: (context) => new NAlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit an App'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
+          context: context,
+          builder: (context) => new NAlertDialog(
+            title: new Text('Are you sure?'),
+            content: new Text('Do you want to exit an App'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: new Text('Yes'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: new Text('Yes'),
-          ),
-        ],
-      ),
-    )) ?? false;
+        )) ??
+        false;
   }
 
   @override
+  void initState() {
+    super.initState();
+    initPreference();
+    getUser();
+  }
+
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-          child: Scaffold(
+      child: Scaffold(
         appBar: AppBar(
           title: Padding(
             padding: const EdgeInsets.only(bottom: 0),
@@ -190,8 +238,47 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(
                   height: 10,
                 ),
+                // FutureBuilder<List<User>>(
+                //   future: getUser(),
+                //   builder: (context, snapshot) {
+                //     if (snapshot.hasData) {
+                //       var usser = List.from(snapshot.data);
+                //       return Container(
+                //         height: 500,
+                //         width: MediaQuery.of(context).size.width,
+                //         child: Column(
+                //           children: [
+                //             Text(
+                //               usser[0].firstName + " " + usser[0].lastName,
+                //             ),
+                //             SizedBox(
+                //               height: 5,
+                //             ),
+                //             Text(
+                //               "3201816114",
+                //               style: TextStyle(
+                //                   fontSize: 17,
+                //                   color: Color(0xff818181),
+                //                   fontWeight: FontWeight.w400),
+                //             ),
+                //             Divider(
+                //               color: Colors.black.withOpacity(0.5),
+                //             ),
+                //           ],
+                //           // children: usser
+                //           //     .map((e) => Text(
+                //           //           e.firstName + " " + e.lastName,
+                //           //         ))
+                //           //     .toList()),
+                //         ),
+                //       );
+                //     }
+
+                //     return Container();
+                //   },
+                // ),
                 Text(
-                  "Mark Zuckerberg",
+                  sharedPreferences.getString("user_name"),
                   style: TextStyle(
                       fontSize: 17,
                       color: Color(0xff818181),
@@ -201,7 +288,7 @@ class _HomePageState extends State<HomePage> {
                   height: 5,
                 ),
                 Text(
-                  "3201816100",
+                  "3201816114",
                   style: TextStyle(
                       fontSize: 17,
                       color: Color(0xff818181),
@@ -231,6 +318,10 @@ class _HomePageState extends State<HomePage> {
                 DrawerMenu(
                   title: "Settings",
                   onPressed: () {
+                    print(sharedPreferences.getInt("userId"));
+                    print(sharedPreferences.getString("noHp"));
+                    print(sharedPreferences.getString("gender"));
+                    print(sharedPreferences.getString("user_name"));
                     setState(() {
                       page = 2;
                     });

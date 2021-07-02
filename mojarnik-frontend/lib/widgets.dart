@@ -1,27 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:mojarnik/bookmarks.dart';
+import 'package:mojarnik/moduleDetail.dart';
 import 'package:mojarnik/moduleDetails.dart';
 import 'package:mojarnik/read.dart';
+import 'package:mojarnik/user.dart';
+
+import 'module.dart';
 
 class Module extends StatelessWidget {
-  final String imageName;
-  final String makul;
-  final String date;
-  final String title;
-  final int jumlahFile;
-  const Module(
-      {Key key,
-      this.imageName,
-      this.makul,
-      this.date,
-      this.title,
-      this.jumlahFile})
-      : super(key: key);
+  
+  // List matakuliah = ["Komputer Animasi", "Pengolahan Citra Dgigital", "Kewarganegaraan", "Sistem Keamanan Informasi"];
+  // final String imageName;
+  // final String makul;
+  // final String date;
+  // final String title;
+  // final int jumlahFile;
+  final Modules modul;
+  const Module({
+    Key key,
+    this.modul,
+    // this.date,
+    // this.title,
+    // this.jumlahFile
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> listMakul = [
+    {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
+    {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
+    {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
+    {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
+  ];
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => ModuleDetails()));
+            builder: (BuildContext context) => ModuleDetails(
+              modul: modul,
+            )));
       },
       child: PhysicalModel(
         color: Colors.transparent,
@@ -43,7 +59,8 @@ class Module extends StatelessWidget {
                     height: 150,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage(this.imageName),
+                        image: AssetImage(listMakul.firstWhere((element) =>
+                                  element["id"] == modul.mataKuliah)["gambar"]),
                         fit: BoxFit.fill,
                       ),
                       borderRadius:
@@ -66,7 +83,8 @@ class Module extends StatelessWidget {
                               alignment: Alignment.center,
                               // color: Colors.yellow,
                               child: Text(
-                                this.makul,
+                                listMakul.firstWhere((element) =>
+                                  element["id"] == modul.mataKuliah)["name"],
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
@@ -85,7 +103,8 @@ class Module extends StatelessWidget {
                                       size: 15,
                                     ),
                                     Text(
-                                      this.date,
+                                      DateFormat('dd MMMM yy')
+                                          .format(modul.tanggal),
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 12),
                                     ),
@@ -93,7 +112,7 @@ class Module extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                this.jumlahFile.toString() + " Files",
+                                modul.jumlahModul.toString() + " Files",
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
@@ -115,7 +134,7 @@ class Module extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         // color: Colors.red,
                         child: Text(
-                          this.title,
+                          modul.judul,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -165,10 +184,9 @@ class DrawerMenu extends StatelessWidget {
 }
 
 class ModuleFiles extends StatelessWidget {
-  final String title;
-  final int jumlahPage;
+  final ModuleDetail module;
   final int page;
-  const ModuleFiles({Key key, this.title, this.jumlahPage, this.page})
+  const ModuleFiles({Key key, this.module, this.page})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -178,10 +196,10 @@ class ModuleFiles extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => ReadingPage(
-                title: this.title,
-                pdf:
-                    "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+                title: module.judul,
+                pdf: module.file,
                 page: this.page,
+                id: module.id,
               ),
             ));
       },
@@ -228,7 +246,7 @@ class ModuleFiles extends StatelessWidget {
                             alignment: Alignment.center,
                             // color: Colors.yellow,
                             child: Text(
-                              this.title,
+                              module.judul,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -237,7 +255,7 @@ class ModuleFiles extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          this.jumlahPage.toString() + " Files",
+                          module.jumlahHalaman.toString() + " Pages",
                           style: TextStyle(color: Colors.white, fontSize: 12),
                         )
                       ],
@@ -269,17 +287,19 @@ class ModuleFiles extends StatelessWidget {
 class SearchWidget extends StatelessWidget {
   final String imageName;
   final String makul;
-  final String date;
-  final String title;
-  final int jumlahFile;
-  const SearchWidget(
-      {Key key,
-      this.imageName,
-      this.makul,
-      this.date,
-      this.title,
-      this.jumlahFile})
-      : super(key: key);
+  // final String date;
+  // final String title;
+  // final int jumlahFile;
+  final Modules modul;
+  const SearchWidget({
+    Key key,
+    this.modul,
+    this.imageName,
+    this.makul,
+    // this.date,
+    // this.title,
+    // this.jumlahFile
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -339,7 +359,7 @@ class SearchWidget extends StatelessWidget {
                           SizedBox(
                             height: 10,
                           ),
-                          Text(this.title,
+                          Text(modul.judul,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 25,
@@ -363,7 +383,7 @@ class SearchWidget extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                                 Text(
-                                  this.date,
+                                  DateFormat("dd MMMM yyyy").format(modul.tanggal),
                                   style: TextStyle(
                                     color: Colors.white,
                                   ),
@@ -372,7 +392,7 @@ class SearchWidget extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            this.jumlahFile.toString() + " Files",
+                            modul.jumlahModul.toString() + " Files",
                             textAlign: TextAlign.right,
                             style: TextStyle(color: Colors.white, fontSize: 12),
                           ),
@@ -403,6 +423,7 @@ class SettingsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // height: 150,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -433,17 +454,51 @@ class SettingsItem extends StatelessWidget {
   }
 }
 
+class SettingItems extends StatelessWidget {
+  final User user;
+  const SettingItems({Key key, @required this.user}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              "Name",
+              style: TextStyle(
+                color: Color(0xff939393),
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  user.firstName + " " + user.lastName,
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Icon(Icons.edit),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
 class BookmarksWidget extends StatelessWidget {
-  final String moduleTitle;
-  final String moduleSubtitle;
-  final String moduleDetailTitle;
-  final int page;
+  // final String moduleTitle;
+  // final String moduleSubtitle;
+  // final String moduleDetailTitle;
+  // final int page;
+  final Bookmarks bookmark;
   const BookmarksWidget({
     Key key,
-    @required this.moduleTitle,
-    @required this.moduleSubtitle,
-    @required this.moduleDetailTitle,
-    @required this.page,
+    @required this.bookmark,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -454,18 +509,18 @@ class BookmarksWidget extends StatelessWidget {
     //   child: Text("Goto page 5"),
     // )
     return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) => ReadingPage(
-              pdf:
-                  "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
-              title: this.moduleDetailTitle,
-              page: this.page,
-            ),
-          ),
-        );
-      },
+      // onTap: () {
+      //   Navigator.of(context).push(
+      //     MaterialPageRoute(
+      //       builder: (BuildContext context) => ReadingPage(
+      //         pdf:
+      //             "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
+      //         title: this.moduleDetailTitle,
+      //         page: bookmark.halaman,
+      //       ),
+      //     ),
+      //   );
+      // },
       child: Container(
         margin: EdgeInsets.only(top: 2, left: 3, right: 3),
         decoration: BoxDecoration(
@@ -489,28 +544,28 @@ class BookmarksWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Mata Kuliah "+this.moduleTitle,
+                "Mata Kuliah ",
                 style: TextStyle(
                     fontSize: 20,
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),
               Text(
-                "Module "+this.moduleSubtitle,
+                "Module ",
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.white,
                 ),
               ),
               Text(
-                "On "+this.moduleDetailTitle+"'s File",
+                "On " + "'s File",
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
                 ),
               ),
               Text(
-                "Page " + this.page.toString(),
+                "Page "+bookmark.halaman.toString(),
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -523,7 +578,7 @@ class BookmarksWidget extends StatelessWidget {
                   children: [
                     // Icon(Icons.date_range, size: 15, color: Colors.white,),
                     Text(
-                      "Bookmarked on 5 March 2021",
+                      "Bookmarked on "+DateFormat("dd MMMM yyyy").format(bookmark.tanggal),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10,

@@ -1,21 +1,29 @@
 import 'package:bottom_sheet/bottom_sheet.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mojarnik/bookmarks.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ReadingPage extends StatefulWidget {
   final String title;
   final String pdf;
   final int page;
-  const ReadingPage({Key key, this.title, this.pdf, this.page})
+  final int id;
+  const ReadingPage({Key key, this.title, this.pdf, this.page, this.id})
       : super(key: key);
   @override
   _ReadingPageState createState() => _ReadingPageState();
 }
 
 class _ReadingPageState extends State<ReadingPage> {
+  TextEditingController tfBookmark = TextEditingController();
   PdfViewerController _pdfViewerController;
   OverlayEntry _overlayEntry;
+  SharedPreferences sharedPreferences;
   TextEditingController comment = TextEditingController();
   void showBottom() {
     showFlexibleBottomSheet(
@@ -28,15 +36,49 @@ class _ReadingPageState extends State<ReadingPage> {
     );
   }
 
+  addBookmark(int halaman, int dokumen, int user) async {
+    var jsonData = null;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    http.Response response;
+    try {
+      response = await http.post(
+          Uri.parse(
+              "http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodulbookmark/"),
+          body: {
+            "halaman": "$halaman",
+            "dokumen": "$dokumen",
+            "user": "$user"
+          },
+          headers: {
+            'Authorization': 'token ' + sharedPreferences.getString("token"),
+          });
+      if (response.statusCode == 201) {
+        print("Success");
+      } else
+        print(response.statusCode);
+    } catch (e) {
+      print(e);
+      print(halaman);
+      print(widget.id);
+      print(sharedPreferences.getInt("userId"));
+    }
+  }
+
   // Future<List<int>> _readDocumentData(String name) async {
   //   final ByteData data = await rootBundle.load("assets/$name");
   //   return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
   // }
+  initPreference() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {});
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     _pdfViewerController = PdfViewerController();
     super.initState();
+    initPreference();
   }
 
   void _showContextMenu(
@@ -233,15 +275,21 @@ class _ReadingPageState extends State<ReadingPage> {
   }
 
   Widget _buildPopupDialog(BuildContext context) {
+    tfBookmark.clear();
     return new AlertDialog(
       title: const Text('Add Bookmark'),
       content: new Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        children: [
           Text("Page"),
           TextField(
             keyboardType: TextInputType.number,
+            controller: tfBookmark,
+            // autofocus: true,
+            // onTap: () {
+            //   tfBookmark.clear();
+            // },
             decoration: InputDecoration(
               hintText: "1, 2, 3, ...",
               focusedBorder: UnderlineInputBorder(
@@ -249,9 +297,8 @@ class _ReadingPageState extends State<ReadingPage> {
               ),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(
-                  // color: Color(0xff0ABDB6),
-                  color: Colors.black
-                ),
+                    // color: Color(0xff0ABDB6),
+                    color: Colors.black),
               ),
             ),
             cursorColor: Color(0xff0ABDB6),
@@ -269,7 +316,10 @@ class _ReadingPageState extends State<ReadingPage> {
           ),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            addBookmark(int.parse(tfBookmark.text), widget.id,
+                sharedPreferences.getInt("userId"));
+          },
           child: const Text(
             'Add',
             style: TextStyle(color: Color(0xff0ABDB6)),
@@ -327,6 +377,7 @@ class _ReadingPageState extends State<ReadingPage> {
                 context: context,
                 builder: (BuildContext context) => _buildPopupDialog(context),
               );
+              tfBookmark.clear();
             },
           ),
         ],

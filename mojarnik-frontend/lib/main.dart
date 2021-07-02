@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mojarnik/home.dart';
 import 'package:ndialog/ndialog.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,12 +34,49 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  List _gender = ["Perempuan", "Laki-laki"];
+  SharedPreferences sharedPreferences;
   FocusNode fcPassword = FocusNode();
   FocusNode fcUsername = FocusNode();
   TextEditingController tfUsername = TextEditingController();
   TextEditingController tfPassword = TextEditingController();
 
-  logIn(String username, String password) {
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  List mapResponse;
+  getUser() async {
+    var jsonData = null;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    http.Response response;
+    try {
+      response = await http.get(
+          Uri.parse(
+              "http://students.ti.elektro.polnep.ac.id:8000/api/accounts/customuser/" +
+                  sharedPreferences.getInt("userId").toString()),
+          headers: {
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'token ' + sharedPreferences.getString("token")
+          });
+      if (response.statusCode == 200) {
+        jsonData = response.body;
+        String jsonDataString = jsonData.toString();
+        final jsonDataa = jsonDecode(jsonDataString);
+        sharedPreferences.setString("user_name",
+            jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+        sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
+        sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  logIn(String username, String password) async {
     if (username == "" || password == "") {
       return NAlertDialog(
         dialogStyle: DialogStyle(backgroundColor: Colors.white),
@@ -67,62 +107,120 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ).show(context);
     }
-    if (username == "tes" && password == "tes") {
-      return Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (BuildContext context) => HomePage(),
-        ),
-      );
-    }else{
-      return NAlertDialog(
-        dialogStyle: DialogStyle(backgroundColor: Colors.white),
-        title: Text(
-          "Peringatan",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color(0xff0ABDB6),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          "Username atau password salah!",
-          style: TextStyle(color: Color(0xff0ABDB6)),
-        ),
-        actions: [
-          TextButton(
-            child: Text(
-              "Kembali Login",
-              style: TextStyle(
-                color: Color(0xff0ABDB6),
-              ),
+    var jsonData = null;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    http.Response response;
+    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
+    //     as Uri;
+    // var map = new Map<String, dynamic>();
+    // map["username"] = "haris";
+    // map["password"] = "haris";
+    try {
+      response = await http.post(
+          Uri.parse(
+              "http://students.ti.elektro.polnep.ac.id:8000/api/token-auth/"),
+          body: {"username": username, "password": password});
+      if (response.statusCode == 200) {
+        jsonData = response.body;
+        String jsonDataString = jsonData.toString();
+        final jsonDataa = jsonDecode(jsonDataString);
+        sharedPreferences.setString("token", jsonDataa["token"]);
+        sharedPreferences.setInt("userId", jsonDataa["user_id"]);
+        try {
+          response = await http.get(
+              Uri.parse(
+                  "http://students.ti.elektro.polnep.ac.id:8000/api/accounts/customuser/" +
+                      sharedPreferences.getInt("userId").toString()),
+              headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'token ' + sharedPreferences.getString("token")
+              });
+          if (response.statusCode == 200) {
+            jsonData = response.body;
+            String jsonDataString = jsonData.toString();
+            final jsonDataa = jsonDecode(jsonDataString);
+            sharedPreferences.setString("user_name",
+                jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+            sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
+            sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+          }
+        } catch (e) {
+          print(e);
+        }
+        return Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => HomePage()),
+            (Route<dynamic> route) => false);
+      } else {
+        return NAlertDialog(
+          dialogStyle: DialogStyle(backgroundColor: Colors.white),
+          title: Text(
+            "Peringatan",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xff0ABDB6),
+              fontWeight: FontWeight.bold,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )
-        ],
-      ).show(context);
+          ),
+          content: Text(
+            "Username atau password salah!",
+            style: TextStyle(color: Color(0xff0ABDB6)),
+          ),
+          actions: [
+            TextButton(
+              child: Text(
+                "Kembali Login",
+                style: TextStyle(
+                  color: Color(0xff0ABDB6),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ).show(context);
+      }
+    } catch (e) {
+      setState(() {});
+    }
+    // if (username == "tes" && password == "tes") {
+    //   return Navigator.of(context).pushReplacement(
+    //     MaterialPageRoute(
+    //       builder: (BuildContext context) => HomePage(),
+    //     ),
+    //   );
+    // }
+  }
+
+  checkLoginStatus() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("token") != null) {
+      return Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => HomePage()),
+          (Route<dynamic> route) => false);
     }
   }
 
-Future<bool> _onWillPop() async {
+  Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: context,
-      builder: (context) => new NAlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit ?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
+          context: context,
+          builder: (context) => new NAlertDialog(
+            title: new Text('Are you sure?'),
+            content: new Text('Do you want to exit ?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: new Text('Yes'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: new Text('Yes'),
-          ),
-        ],
-      ),
-    )) ?? false;
+        )) ??
+        false;
   }
 
   @override
@@ -135,12 +233,12 @@ Future<bool> _onWillPop() async {
     ]);
     return WillPopScope(
       onWillPop: _onWillPop,
-          child: GestureDetector(
-        onTap: (){
+      child: GestureDetector(
+        onTap: () {
           fcPassword.unfocus();
           fcUsername.unfocus();
         },
-            child: Scaffold(
+        child: Scaffold(
           body: Stack(
             children: [
               Container(
@@ -203,11 +301,12 @@ Future<bool> _onWillPop() async {
                           ),
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: TextField(
                                 focusNode: fcUsername,
                                 textInputAction: TextInputAction.next,
-                                onEditingComplete: ()=>node.nextFocus(),
+                                onEditingComplete: () => node.nextFocus(),
                                 controller: tfUsername,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
@@ -256,15 +355,17 @@ Future<bool> _onWillPop() async {
                           ),
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: TextField(
                                 controller: tfPassword,
                                 focusNode: fcPassword,
                                 textInputAction: TextInputAction.done,
-                                onSubmitted: (_){
+                                onSubmitted: (_) {
                                   node.unfocus();
                                   logIn(tfUsername.text, tfPassword.text);
                                 },
+                                obscureText: true,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Password",
