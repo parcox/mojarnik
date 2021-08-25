@@ -1,7 +1,6 @@
 class User {
     User({
         this.id,
-        this.password,
         this.lastLogin,
         this.isSuperuser,
         this.username,
@@ -14,13 +13,13 @@ class User {
         this.role,
         this.gender,
         this.noHp,
+        this.foto,
         this.profilUserLengkap,
         this.groups,
         this.userPermissions,
     });
 
     int id;
-    String password;
     DateTime lastLogin;
     bool isSuperuser;
     String username;
@@ -33,13 +32,13 @@ class User {
     int role;
     int gender;
     String noHp;
+    String foto;
     bool profilUserLengkap;
-    List<dynamic> groups;
+    List<int> groups;
     List<dynamic> userPermissions;
 
     factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
-        password: json["password"],
         lastLogin: DateTime.parse(json["last_login"]),
         isSuperuser: json["is_superuser"],
         username: json["username"],
@@ -52,14 +51,14 @@ class User {
         role: json["role"],
         gender: json["gender"],
         noHp: json["no_hp"],
+        foto: json["foto"],
         profilUserLengkap: json["profil_user_lengkap"],
-        groups: List<dynamic>.from(json["groups"].map((x) => x)),
+        groups: List<int>.from(json["groups"].map((x) => x)),
         userPermissions: List<dynamic>.from(json["user_permissions"].map((x) => x)),
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
-        "password": password,
         "last_login": lastLogin.toIso8601String(),
         "is_superuser": isSuperuser,
         "username": username,
@@ -72,6 +71,7 @@ class User {
         "role": role,
         "gender": gender,
         "no_hp": noHp,
+        "foto": foto,
         "profil_user_lengkap": profilUserLengkap,
         "groups": List<dynamic>.from(groups.map((x) => x)),
         "user_permissions": List<dynamic>.from(userPermissions.map((x) => x)),

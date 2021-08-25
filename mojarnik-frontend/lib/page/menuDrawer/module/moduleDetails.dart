@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mojarnik/module.dart';
-import 'package:mojarnik/moduleDetail.dart';
+import 'package:mojarnik/instansi/makul.dart';
+import 'package:mojarnik/moduleClass/module.dart';
+import 'package:mojarnik/moduleClass/moduleDetail.dart';
 import 'package:mojarnik/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,9 +12,11 @@ class ModuleDetails extends StatefulWidget {
   // final String title;
   // final int jumlahFile;
   final Modules modul;
+  final MataKuliah makul;
   const ModuleDetails({
     Key key,
     this.modul,
+    this.makul,
     // this.date,
     // this.title,
     // this.jumlahFile
@@ -23,12 +26,12 @@ class ModuleDetails extends StatefulWidget {
 }
 
 class _ModuleDetailsState extends State<ModuleDetails> {
-  List<Map<String, dynamic>> listMakul = [
-    {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
-    {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
-    {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
-    {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
-  ];
+  // List<Map<String, dynamic>> listMakul = [
+  //   {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
+  //   {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
+  //   {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
+  //   {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
+  // ];
   SharedPreferences sharedPreferences;
   Future<List<ModuleDetail>> getModuleDetail() async {
     http.Response response;
@@ -36,7 +39,7 @@ class _ModuleDetailsState extends State<ModuleDetails> {
     //     as Uri;
     response = await http.get(
         Uri.parse(
-            "http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emoduldetail/"),
+            "https://mojarnik-server.herokuapp.com/api/emodul/emoduldetail/"),
         headers: {
           'Content-type': 'application/json',
           'Accept': 'application/json',
@@ -91,8 +94,7 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                     child: Opacity(
                       opacity: 0.25,
                       child: Image(
-                        image: AssetImage(listMakul.firstWhere((element) =>
-                                  element["id"] == widget.modul.mataKuliah)["gambar"]),
+                        image: AssetImage("asset/binary.jpg"),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -106,16 +108,24 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          listMakul.firstWhere((element) =>
-                                  element["id"] == widget.modul.mataKuliah)["name"],
+                          widget.makul.nama,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 30,
+                            fontSize: 18,
+                            // fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          widget.modul.judul.capitalizeFirstofEach,
+                          maxLines: 2,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 25,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          widget.modul.jumlahModul.toString()+" Files",
+                          widget.modul.jumlahModul.toString() + " Files",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -135,7 +145,8 @@ class _ModuleDetailsState extends State<ModuleDetails> {
             future: getModuleDetail(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                var modulD = List.from(snapshot.data).where((x) => x.emodul==widget.modul.mataKuliah);
+                var modulD = List.from(snapshot.data)
+                    .where((x) => x.emodul == widget.modul.id);
                 return GridView.count(
                     padding: EdgeInsets.symmetric(horizontal: 2),
                     crossAxisSpacing: 5,
@@ -150,8 +161,7 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                         )
                         .toList());
               }
-
-              return Container();
+              return Center(child: CircularProgressIndicator());
             },
           ),
           // child: GridView.count(

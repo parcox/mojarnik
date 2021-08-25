@@ -1,43 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mojarnik/bookmarks.dart';
-import 'package:mojarnik/moduleDetail.dart';
-import 'package:mojarnik/moduleDetails.dart';
-import 'package:mojarnik/read.dart';
-import 'package:mojarnik/user.dart';
+import 'package:mojarnik/instansi/makul.dart';
+import 'package:mojarnik/page/menuDrawer/module/moduleDetails.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:mojarnik/page/menuDrawer/module/read.dart';
+import 'package:mojarnik/userClass/profilMahasiswa.dart';
+import 'package:mojarnik/userClass/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:numerus/numerus.dart';
 
-import 'module.dart';
+import 'instansi/jurusan.dart';
+import 'instansi/prodi.dart';
+import 'moduleClass/bookmarks.dart';
+import 'moduleClass/komen.dart';
+import 'moduleClass/module.dart';
+import 'moduleClass/moduleDetail.dart';
 
 class Module extends StatelessWidget {
-  
-  // List matakuliah = ["Komputer Animasi", "Pengolahan Citra Dgigital", "Kewarganegaraan", "Sistem Keamanan Informasi"];
-  // final String imageName;
-  // final String makul;
-  // final String date;
-  // final String title;
-  // final int jumlahFile;
   final Modules modul;
-  const Module({
-    Key key,
-    this.modul,
-    // this.date,
-    // this.title,
-    // this.jumlahFile
-  }) : super(key: key);
+  final List<MataKuliah> makul;
+  const Module({Key key, this.modul, this.makul}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> listMakul = [
-    {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
-    {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
-    {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
-    {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
-  ];
+    // List<Map<String, dynamic>> listMakul = [
+    //   {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
+    //   {
+    //     "id": 2,
+    //     "name": "Pengolahan Citra Digital",
+    //     "gambar": "asset/binary.jpg"
+    //   },
+    //   {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
+    //   {
+    //     "id": 4,
+    //     "name": "Sistem Keamanan Informasi",
+    //     "gambar": "asset/binary.jpg"
+    //   }
+    // ];
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ModuleDetails(
-              modul: modul,
-            )));
+                  modul: modul,
+                  makul: makul.firstWhere((element) => element.id==modul.mataKuliah),
+                )));
       },
       child: PhysicalModel(
         color: Colors.transparent,
@@ -59,8 +65,7 @@ class Module extends StatelessWidget {
                     height: 150,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage(listMakul.firstWhere((element) =>
-                                  element["id"] == modul.mataKuliah)["gambar"]),
+                        image: AssetImage("asset/binary.jpg"),
                         fit: BoxFit.fill,
                       ),
                       borderRadius:
@@ -83,8 +88,14 @@ class Module extends StatelessWidget {
                               alignment: Alignment.center,
                               // color: Colors.yellow,
                               child: Text(
-                                listMakul.firstWhere((element) =>
-                                  element["id"] == modul.mataKuliah)["name"],
+                                makul
+                                    .firstWhere((element) =>
+                                        element.id == modul.mataKuliah)
+                                    .nama
+                                    .capitalizeFirstofEach,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
@@ -134,10 +145,12 @@ class Module extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         // color: Colors.red,
                         child: Text(
-                          modul.judul,
+                          modul.judul.capitalizeFirstofEach,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -186,8 +199,7 @@ class DrawerMenu extends StatelessWidget {
 class ModuleFiles extends StatelessWidget {
   final ModuleDetail module;
   final int page;
-  const ModuleFiles({Key key, this.module, this.page})
-      : super(key: key);
+  const ModuleFiles({Key key, this.module, this.page}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -196,10 +208,12 @@ class ModuleFiles extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => ReadingPage(
-                title: module.judul,
-                pdf: module.file,
+                // title: module.judul,
+                // pdf: module.file,
+                // page: this.page,
+                // id: module.id,
+                modul: this.module,
                 page: this.page,
-                id: module.id,
               ),
             ));
       },
@@ -246,7 +260,7 @@ class ModuleFiles extends StatelessWidget {
                             alignment: Alignment.center,
                             // color: Colors.yellow,
                             child: Text(
-                              module.judul,
+                              module.judul.capitalizeFirstofEach,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -302,108 +316,141 @@ class SearchWidget extends StatelessWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: PhysicalModel(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(15),
-        elevation: 5.0,
-        shadowColor: Colors.black,
-        child: Stack(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 180,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(this.imageName),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-            Opacity(
-              opacity: 0.8,
-              child: Container(
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (BuildContext context) => ModuleDetails(
+                  modul: modul,
+                )));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: PhysicalModel(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+          elevation: 5.0,
+          shadowColor: Colors.black,
+          child: Stack(
+            children: [
+              Container(
                 width: MediaQuery.of(context).size.width,
                 height: 180,
                 decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("asset/binary.jpg"),
+                    fit: BoxFit.cover,
+                  ),
                   borderRadius: BorderRadius.circular(15),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.black.withOpacity(0.4),
-                      Colors.black,
-                      Colors.black.withOpacity(0.4),
-                    ],
+                ),
+              ),
+              Opacity(
+                opacity: 0.8,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.black.withOpacity(0.4),
+                        Colors.black,
+                        Colors.black.withOpacity(0.4),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 180,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Container(
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 180,
+                child: Column(
+                  children: [
+                    Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(this.makul,
+                          Text(makul.capitalizeFirstofEach,
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 25,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold)),
                           SizedBox(
                             height: 10,
                           ),
-                          Text(modul.judul,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600)),
+                          Stack(
+                            children: [
+                              Text(
+                                modul.judul.capitalizeFirstofEach,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 27,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                modul.judul.capitalizeFirstofEach,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                style: TextStyle(
+                                    foreground: Paint()
+                                      ..style = PaintingStyle.stroke
+                                      ..strokeWidth = 0.5
+                                      ..color = Color(0xff0ABDB6),
+                                    // color: Colors.white,
+                                    fontSize: 27,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                  Container(
-                    height: 30,
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.date_range,
-                                  color: Colors.white,
-                                ),
-                                Text(
-                                  DateFormat("dd MMMM yyyy").format(modul.tanggal),
-                                  style: TextStyle(
+                    Container(
+                      height: 30,
+                      width: MediaQuery.of(context).size.width,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.date_range,
                                     color: Colors.white,
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    DateFormat("dd MMMM yyyy")
+                                        .format(modul.tanggal),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Text(
-                            modul.jumlahModul.toString() + " Files",
-                            textAlign: TextAlign.right,
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ],
+                            Text(
+                              modul.jumlahModul.toString() + " Files",
+                              textAlign: TextAlign.right,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -414,14 +461,30 @@ class SettingsItem extends StatelessWidget {
   final String title;
   final String content;
   final bool isEditable;
-  const SettingsItem(
+  final TextEditingController controller;
+  final bool nameMode;
+  SettingsItem(
       {Key key,
       @required this.title,
       @required this.content,
-      @required this.isEditable})
+      @required this.isEditable,
+      this.nameMode,
+      this.controller})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    buildTf() {
+      controller.text = this.content;
+      return TextField(
+        decoration: InputDecoration(
+            // labelText: this.content,
+            // labelStyle: TextStyle(fontSize: 20),
+            ),
+        controller: controller,
+      );
+    }
+
     return Container(
       // height: 150,
       child: Column(
@@ -440,14 +503,15 @@ class SettingsItem extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  this.content,
-                  style: TextStyle(fontSize: 20),
-                ),
+                child: isEditable
+                    ? buildTf()
+                    : Text(
+                        this.content,
+                        style: TextStyle(fontSize: 20),
+                      ),
               ),
-              this.isEditable ? Icon(Icons.edit) : Container(),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -495,10 +559,14 @@ class BookmarksWidget extends StatelessWidget {
   // final String moduleSubtitle;
   // final String moduleDetailTitle;
   // final int page;
+  final MataKuliah makul;
+  final Modules module;
+  final ModuleDetail moduleDetail;
   final Bookmarks bookmark;
   const BookmarksWidget({
     Key key,
     @required this.bookmark,
+    this.moduleDetail, this.makul, this.module
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -509,18 +577,16 @@ class BookmarksWidget extends StatelessWidget {
     //   child: Text("Goto page 5"),
     // )
     return InkWell(
-      // onTap: () {
-      //   Navigator.of(context).push(
-      //     MaterialPageRoute(
-      //       builder: (BuildContext context) => ReadingPage(
-      //         pdf:
-      //             "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf",
-      //         title: this.moduleDetailTitle,
-      //         page: bookmark.halaman,
-      //       ),
-      //     ),
-      //   );
-      // },
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) => ReadingPage(
+              modul: moduleDetail,
+              page: bookmark.halaman,
+            ),
+          ),
+        );
+      },
       child: Container(
         margin: EdgeInsets.only(top: 2, left: 3, right: 3),
         decoration: BoxDecoration(
@@ -544,28 +610,28 @@ class BookmarksWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Mata Kuliah ",
+                "Mata Kuliah "+makul.nama.capitalizeFirstofEach,
                 style: TextStyle(
                     fontSize: 20,
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),
               Text(
-                "Module ",
+                "Modul "+module.judul.capitalizeFirstofEach,
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.white,
                 ),
               ),
               Text(
-                "On " + "'s File",
+                "Di dokumen " + moduleDetail.judul,
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
                 ),
               ),
               Text(
-                "Page "+bookmark.halaman.toString(),
+                "Halaaman " + bookmark.halaman.toString(),
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -578,7 +644,8 @@ class BookmarksWidget extends StatelessWidget {
                   children: [
                     // Icon(Icons.date_range, size: 15, color: Colors.white,),
                     Text(
-                      "Bookmarked on "+DateFormat("dd MMMM yyyy").format(bookmark.tanggal),
+                      "Ditandai pada tanggal " +
+                          DateFormat("dd MMMM yyyy").format(bookmark.tanggal),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -593,4 +660,192 @@ class BookmarksWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+class CommentWidget extends StatelessWidget {
+  final User user;
+  final Komentar komen;
+  const CommentWidget({Key key, this.komen, this.user}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      // height: 100,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 30,
+              width: 30,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey.withOpacity(0.2)),
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 30,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        user.firstName + " " + user.lastName,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 3,
+                    ),
+                    Text(komen.comment),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Divider(
+                      height: 0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Test extends StatelessWidget {
+  final Mahasiswa users;
+  const Test({
+    Key key,
+    @required this.users,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text(users.kelas),
+    );
+  }
+}
+
+class DashMahasiswa extends StatelessWidget {
+  final Mahasiswa mahasiswa;
+  final Jurusan jurusan;
+  final Prodi prodi;
+  // final String jurusan;
+  // final String prodi;
+  // final String semester;
+  // final String kelas;
+  const DashMahasiswa({Key key, this.jurusan, this.prodi, this.mahasiswa})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Stack(
+        children: [
+          Container(
+            height: 200,
+            width: MediaQuery.of(context).size.width,
+            color: Color(0xff1ABAB9),
+          ),
+          Center(
+            child: Opacity(
+              opacity: 0.25,
+              child: Image(
+                height: 200,
+                image: AssetImage("asset/polnep.png"),
+              ),
+            ),
+          ),
+          Container(
+            height: 200,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Color(0xff19B5B4).withOpacity(0.37),
+                  Colors.white.withOpacity(0.37),
+                  Color(0xff19B5B4).withOpacity(0.37),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            height: 200,
+            width: MediaQuery.of(context).size.width,
+            color: Colors.black.withOpacity(0.21),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  jurusan.nama,
+                  // "tes",
+                  style: TextStyle(
+                      fontSize: 35,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    // listProdi.firstWhere((element) => element["id"] == sharedPreferences.getInt("prodi"))["name"],
+                    prodi.nama,
+                    // "tes",
+                    style: TextStyle(
+                        fontSize: 23,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300),
+                  ),
+                ),
+                Text(
+                  "Semester " +
+                      int.parse(mahasiswa.semester).toRomanNumeralString(),
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300),
+                ),
+                Text(
+                  "Kelas " + mahasiswa.kelas,
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+extension CapExtension on String {
+  String get inCaps =>
+      this.length > 0 ? '${this[0].toUpperCase()}${this.substring(1)}' : '';
+  String get allInCaps => this.toUpperCase();
+  String get capitalizeFirstofEach => this
+      .replaceAll(RegExp(' +'), ' ')
+      .split(" ")
+      .map((str) => str.inCaps)
+      .join(" ");
 }

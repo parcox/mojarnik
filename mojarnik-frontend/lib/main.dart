@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mojarnik/home.dart';
+import 'package:mojarnik/page/home.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,13 +34,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  int prodi;
+  String semester;
+  String kelas;
   List _gender = ["Perempuan", "Laki-laki"];
   SharedPreferences sharedPreferences;
   FocusNode fcPassword = FocusNode();
   FocusNode fcUsername = FocusNode();
   TextEditingController tfUsername = TextEditingController();
   TextEditingController tfPassword = TextEditingController();
-
+  bool _isLoading = false;
   void initState() {
     super.initState();
     checkLoginStatus();
@@ -54,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       response = await http.get(
           Uri.parse(
-              "http://students.ti.elektro.polnep.ac.id:8000/api/accounts/customuser/" +
+              "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
                   sharedPreferences.getInt("userId").toString()),
           headers: {
             'Content-type': 'application/json',
@@ -117,8 +120,7 @@ class _LoginPageState extends State<LoginPage> {
     // map["password"] = "haris";
     try {
       response = await http.post(
-          Uri.parse(
-              "http://students.ti.elektro.polnep.ac.id:8000/api/token-auth/"),
+          Uri.parse("https://mojarnik-server.herokuapp.com/api/token-auth/"),
           body: {"username": username, "password": password});
       if (response.statusCode == 200) {
         jsonData = response.body;
@@ -129,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
         try {
           response = await http.get(
               Uri.parse(
-                  "http://students.ti.elektro.polnep.ac.id:8000/api/accounts/customuser/" +
+                  "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
                       sharedPreferences.getInt("userId").toString()),
               headers: {
                 'Content-type': 'application/json',
@@ -142,16 +144,48 @@ class _LoginPageState extends State<LoginPage> {
             final jsonDataa = jsonDecode(jsonDataString);
             sharedPreferences.setString("user_name",
                 jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
-            sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
+            sharedPreferences.setString("gender", jsonDataa["gender"]);
             sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+            try {
+              response = await http.get(
+                  Uri.parse(
+                      "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
+                          sharedPreferences.getInt("userId").toString()),
+                  headers: {
+                    'Content-type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization':
+                        'token ' + sharedPreferences.getString("token")
+                  });
+              if (response.statusCode == 200) {
+                var jsonData = jsonDecode(response.body);
+                String jsonDataString = json.encode(jsonData[0]);
+                final jsonDataa = jsonDecode(jsonDataString);
+                sharedPreferences.setInt("profilId", jsonDataa["id"]);
+                sharedPreferences.setInt("prodi", jsonDataa["prodi"]);
+                sharedPreferences.setString("semester", jsonDataa["semester"]);
+                sharedPreferences.setString("kelas", jsonDataa["kelas"]);
+                return Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => HomePage(
+                              kelas: sharedPreferences.getString("kelas"),
+                              prodi: sharedPreferences.getInt("prodi"),
+                              semester: sharedPreferences.getString("semester"),
+                            )),
+                    (Route<dynamic> route) => false);
+              }
+              return null;
+            } catch (e) {
+              print(e);
+            }
           }
         } catch (e) {
           print(e);
         }
-        return Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => HomePage()),
-            (Route<dynamic> route) => false);
       } else {
+        setState(() {
+          _isLoading = false;
+        });
         return NAlertDialog(
           dialogStyle: DialogStyle(backgroundColor: Colors.white),
           title: Text(
@@ -197,7 +231,12 @@ class _LoginPageState extends State<LoginPage> {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("token") != null) {
       return Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(
+              builder: (context) => HomePage(
+                    kelas: sharedPreferences.getString("kelas"),
+                    prodi: sharedPreferences.getInt("prodi"),
+                    semester: sharedPreferences.getString("semester"),
+                  )),
           (Route<dynamic> route) => false);
     }
   }
@@ -380,31 +419,43 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        logIn(tfUsername.text, tfPassword.text);
-                      },
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        child: Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                        ),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xff00FFFF),
-                              Color(0xff00C9C9),
-                              Color(0xff00FFFF),
-                            ],
+                    _isLoading
+                        ? Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              logIn(tfUsername.text, tfPassword.text);
+                            },
+                            child: Container(
+                              height: 40,
+                              width: 40,
+                              child: Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                              ),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xff00FFFF),
+                                    Color(0xff00C9C9),
+                                    Color(0xff00FFFF),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

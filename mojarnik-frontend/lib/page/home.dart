@@ -1,33 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:mojarnik/about3.dart';
-import 'package:mojarnik/bookmarks4.dart';
-import 'package:mojarnik/home1.dart';
 import 'package:mojarnik/main.dart';
-import 'package:mojarnik/settings2.dart';
-import 'package:mojarnik/user.dart';
+import 'package:mojarnik/tes.dart';
 import 'package:mojarnik/widgets.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'menuDrawer/about3.dart';
+import 'menuDrawer/bookmarks4.dart';
+import 'menuDrawer/home1.dart';
+import 'menuDrawer/settings2.dart';
+
 class HomePage extends StatefulWidget {
+  final int prodi;
+  final String semester;
+  final String kelas;
+  const HomePage({Key key, this.prodi, this.semester, this.kelas})
+      : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   List _gender = ["Perempuan", "Laki-laki"];
-  String user_name;
   SharedPreferences sharedPreferences;
   var scaffoldKey = GlobalKey<ScaffoldState>();
   int page = 0;
-  String helpContent =""" 
+  bool settingMode = false;
+  bool edit = false;
+  String helpContent = """ 
   Tes
   Tes
   Tes
   """;
-  
 
   List mapResponse;
   getUser() async {
@@ -43,9 +49,7 @@ class _HomePageState extends State<HomePage> {
             jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
         sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
         sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
-        setState(() {
-          
-        });
+        setState(() {});
       }
     } catch (e) {
       print(e);
@@ -114,7 +118,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     initPreference();
-    getUser();
+    // getUser();
   }
 
   Widget build(BuildContext context) {
@@ -146,41 +150,69 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.white,
           centerTitle: true,
           actions: [
-            TextButton(
-              onPressed: () {
-                return NAlertDialog(
-                  title: Text(
-                    "Help",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Color(0xff0ABDB6)),
-                  ),
-                  content: Container(
-                    child: Text(helpContent, textAlign: TextAlign.justify),
-                  ),
-                  dismissable: false,
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        "I understand",
-                        style: TextStyle(color: Color(0xff0ABDB6)),
+            settingMode
+                ? TextButton(
+                    onPressed: () {
+                      setState(() {
+                        if (edit==true) {
+                          edit = false;
+                        } else if (edit==false) {
+                          edit = true;
+                        }
+                      });
+                    },
+                    child: Icon(Icons.edit,color: Color(0xff0ABDB6)),
+                  )
+                : TextButton(
+                    onPressed: () {
+                      return NAlertDialog(
+                        title: Text(
+                          "Help",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff0ABDB6)),
+                        ),
+                        content: Container(
+                          child:
+                              Text(helpContent, textAlign: TextAlign.justify),
+                        ),
+                        dismissable: false,
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "I understand",
+                              style: TextStyle(color: Color(0xff0ABDB6)),
+                            ),
+                          ),
+                          // TextButton(
+                          //   onPressed: () {
+                          //     Navigator.of(context).push(
+                          //       MaterialPageRoute(
+                          //         builder: (BuildContext context) => HalamanTes(),
+                          //       ),
+                          //     );
+                          //   },
+                          //   child: Text(
+                          //     "Tes",
+                          //     style: TextStyle(color: Color(0xff0ABDB6)),
+                          //   ),
+                          // ),
+                        ],
+                      ).show(context);
+                    },
+                    // child: Image(image: AssetImage("asset/help.png"),)
+                    child: Image(
+                      height: 30,
+                      width: 30,
+                      image: AssetImage(
+                        "asset/help.png",
                       ),
                     ),
-                  ],
-                ).show(context);
-              },
-              // child: Image(image: AssetImage("asset/help.png"),)
-              child: Image(
-                height: 30,
-                width: 30,
-                image: AssetImage(
-                  "asset/help.png",
-                ),
-              ),
-            ),
+                  ),
           ],
         ),
         key: scaffoldKey,
@@ -278,7 +310,11 @@ class _HomePageState extends State<HomePage> {
                 //   },
                 // ),
                 Text(
-                  sharedPreferences.getString("user_name"),
+                  sharedPreferences.getString("user_name") != null
+                      ? sharedPreferences
+                          .getString("user_name")
+                          .capitalizeFirstofEach
+                      : "Name",
                   style: TextStyle(
                       fontSize: 17,
                       color: Color(0xff818181),
@@ -302,6 +338,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       page = 0;
+                      settingMode = false;
                     });
                     Navigator.pop(context);
                   },
@@ -311,6 +348,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       page = 1;
+                      settingMode = false;
                     });
                     Navigator.pop(context);
                   },
@@ -318,12 +356,9 @@ class _HomePageState extends State<HomePage> {
                 DrawerMenu(
                   title: "Settings",
                   onPressed: () {
-                    print(sharedPreferences.getInt("userId"));
-                    print(sharedPreferences.getString("noHp"));
-                    print(sharedPreferences.getString("gender"));
-                    print(sharedPreferences.getString("user_name"));
                     setState(() {
                       page = 2;
+                      settingMode = true;
                     });
                     Navigator.pop(context);
                   },
@@ -333,6 +368,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       page = 3;
+                      settingMode = false;
                     });
                     Navigator.pop(context);
                   },
@@ -360,13 +396,20 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        body: <Widget>[
-          FirstPage(),
+        body: [
+          FirstPage(
+            kelas: widget.kelas,
+            prodi: widget.prodi,
+            semester: widget.semester,
+          ),
           FourthPage(),
-          SecondPage(),
+          SecondPage(
+            isEdit: edit,
+          ),
           ThirdPage(),
         ][page],
       ),
     );
+    // );
   }
 }
