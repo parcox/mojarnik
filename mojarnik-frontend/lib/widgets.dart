@@ -198,7 +198,6 @@ class DrawerMenu extends StatelessWidget {
 }
 
 class ModuleFiles extends StatelessWidget {
-  
   final ModuleDetail module;
   final int page;
   const ModuleFiles({Key key, this.module, this.page}) : super(key: key);
@@ -263,6 +262,9 @@ class ModuleFiles extends StatelessWidget {
                             // color: Colors.yellow,
                             child: Text(
                               module.judul.capitalizeFirstofEach,
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -695,7 +697,8 @@ class BookmarksWidget extends StatelessWidget {
             height: MediaQuery.of(context).size.height / 7,
             // child: Icon(Icons.bookmark, size: 40),
             child: Transform.rotate(
-              child: Icon(Icons.push_pin_sharp, size: 40, color: Color(0xff0ABDB6)),
+              child: Icon(Icons.push_pin_sharp,
+                  size: 40, color: Color(0xff0ABDB6)),
               angle: 45 * 3.14 / 180,
             ),
             // color: Colors.green.withOpacity(0.5),
@@ -722,14 +725,15 @@ class CommentWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 30,
-              width: 30,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                // color: Colors.grey,
-              ),
-              child: Image(image: AssetImage("asset/markZuck.png"),)
-            ),
+                height: 30,
+                width: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  // color: Colors.grey,
+                ),
+                child: Image(
+                  image: AssetImage("asset/markZuck.png"),
+                )),
             SizedBox(
               width: 10,
             ),

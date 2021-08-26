@@ -109,6 +109,9 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                       children: [
                         Text(
                           widget.makul.nama,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
                           // "Nama Makul",
                           style: TextStyle(
                             color: Colors.white,
@@ -119,6 +122,8 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                         Text(
                           widget.modul.judul.capitalizeFirstofEach,
                           maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 25,
