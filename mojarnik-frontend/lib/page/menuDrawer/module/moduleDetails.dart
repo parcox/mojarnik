@@ -109,6 +109,7 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                       children: [
                         Text(
                           widget.makul.nama,
+                          // "Nama Makul",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,

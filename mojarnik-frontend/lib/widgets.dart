@@ -302,7 +302,7 @@ class ModuleFiles extends StatelessWidget {
 
 class SearchWidget extends StatelessWidget {
   final String imageName;
-  final String makul;
+  final MataKuliah makul;
   // final String date;
   // final String title;
   // final int jumlahFile;
@@ -323,6 +323,7 @@ class SearchWidget extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ModuleDetails(
                   modul: modul,
+                  makul: makul,
                 )));
       },
       child: Padding(
@@ -375,7 +376,7 @@ class SearchWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.max,
                         // crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(makul.capitalizeFirstofEach,
+                          Text(makul.nama.capitalizeFirstofEach,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -725,8 +726,9 @@ class CommentWidget extends StatelessWidget {
               width: 30,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.grey,
+                // color: Colors.grey,
               ),
+              child: Image(image: AssetImage("asset/markZuck.png"),)
             ),
             SizedBox(
               width: 10,

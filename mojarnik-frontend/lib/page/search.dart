@@ -202,10 +202,8 @@ class _SearchPageState extends State<SearchPage> {
                                       imageName: "asset/binary.jpg",
                                       // makul: listMakul.firstWhere((element) =>
                                       //     element["id"] == e.mataKuliah)["name"],
-                                      makul: makul
-                                          .firstWhere((element) =>
-                                              element.id == e.mataKuliah)
-                                          .nama,
+                                      makul: makul.firstWhere((element) =>
+                                          element.id == e.mataKuliah),
                                     ))
                                 .toList());
                       }

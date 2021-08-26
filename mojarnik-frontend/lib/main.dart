@@ -427,6 +427,7 @@ class _LoginPageState extends State<LoginPage> {
                           )
                         : TextButton(
                             onPressed: () {
+                              node.unfocus();
                               setState(() {
                                 _isLoading = true;
                               });
