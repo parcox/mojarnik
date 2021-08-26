@@ -448,15 +448,15 @@ class _ReadingPageState extends State<ReadingPage> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              // _pdfViewerController.searchText("succinctly");
-            },
-            child: Icon(
-              Icons.search,
-              color: Color(0xff0ABDB6),
-            ),
-          ),
+          // TextButton(
+          //   onPressed: () {
+          //     // _pdfViewerController.searchText("succinctly");
+          //   },
+          //   child: Icon(
+          //     Icons.search,
+          //     color: Color(0xff0ABDB6),
+          //   ),
+          // ),
           TextButton(
             child: Stack(
               alignment: Alignment.center,
@@ -490,19 +490,19 @@ class _ReadingPageState extends State<ReadingPage> {
             child: SfPdfViewer.network(
               widget.modul.file,
               canShowPaginationDialog: true,
-              onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
-                if (details.selectedText == null && _overlayEntry != null) {
-                  _overlayEntry.remove();
-                  _overlayEntry = null;
-                } else if (details.selectedText != null &&
-                    _overlayEntry == null) {
-                  _showContextMenu(context, details);
-                }
-              },
+              // onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
+              //   if (details.selectedText == null && _overlayEntry != null) {
+              //     _overlayEntry.remove();
+              //     _overlayEntry = null;
+              //   } else if (details.selectedText != null &&
+              //       _overlayEntry == null) {
+              //     _showContextMenu(context, details);
+              //   }
+              // },
               enableTextSelection: true,
               initialScrollOffset: Offset(0, 0),
               onDocumentLoaded: goto(),
-              interactionMode: PdfInteractionMode.selection,
+              // interactionMode: PdfInteractionMode.selection,
               searchTextHighlightColor: Colors.blue,
               controller: _pdfViewerController,
             ),

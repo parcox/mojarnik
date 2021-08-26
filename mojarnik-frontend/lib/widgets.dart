@@ -42,7 +42,8 @@ class Module extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ModuleDetails(
                   modul: modul,
-                  makul: makul.firstWhere((element) => element.id==modul.mataKuliah),
+                  makul: makul
+                      .firstWhere((element) => element.id == modul.mataKuliah),
                 )));
       },
       child: PhysicalModel(
@@ -197,6 +198,7 @@ class DrawerMenu extends StatelessWidget {
 }
 
 class ModuleFiles extends StatelessWidget {
+  
   final ModuleDetail module;
   final int page;
   const ModuleFiles({Key key, this.module, this.page}) : super(key: key);
@@ -491,7 +493,7 @@ class SettingsItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 20),
             child: Text(
               this.title,
               style: TextStyle(
@@ -566,7 +568,9 @@ class BookmarksWidget extends StatelessWidget {
   const BookmarksWidget({
     Key key,
     @required this.bookmark,
-    this.moduleDetail, this.makul, this.module
+    this.moduleDetail,
+    this.makul,
+    this.module,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -587,76 +591,115 @@ class BookmarksWidget extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        margin: EdgeInsets.only(top: 2, left: 3, right: 3),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xff0083B0),
-              Color(0xff00B4DB),
-              Color(0xff0083B0),
-            ],
-          ),
-        ),
-        width: double.infinity,
-        height: MediaQuery.of(context).size.height / 7,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Mata Kuliah "+makul.nama.capitalizeFirstofEach,
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+      child: Stack(
+        children: [
+          Container(
+            margin: EdgeInsets.only(top: 6, left: 8, right: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  [
+                    Colors.purple,
+                    Colors.green,
+                    Colors.black,
+                    Colors.blue,
+                    Colors.brown,
+                  ][bookmark.id % 5],
+                  // Color(0xff0083B0),
+                  [
+                    Colors.green,
+                    Colors.purple,
+                    Colors.brown,
+                    Colors.black,
+                    Colors.blue,
+                  ][bookmark.id % 5],
+                  [
+                    Colors.purple,
+                    Colors.green,
+                    Colors.black,
+                    Colors.blue,
+                    Colors.brown,
+                  ][bookmark.id % 5],
+                  // Color(0xff00B4DB),
+                  // Color(0xff0083B0),
+                ],
               ),
-              Text(
-                "Modul "+module.judul.capitalizeFirstofEach,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                "Di dokumen " + moduleDetail.judul,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                "Halaaman " + bookmark.halaman.toString(),
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-              ),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Icon(Icons.date_range, size: 15, color: Colors.white,),
-                    Text(
-                      "Ditandai pada tanggal " +
-                          DateFormat("dd MMMM yyyy").format(bookmark.tanggal),
-                      style: TextStyle(
+            ),
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height / 7,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Mata Kuliah " + makul.nama.capitalizeFirstofEach,
+                    style: TextStyle(
+                        fontSize: 20,
                         color: Colors.white,
-                        fontSize: 10,
-                      ),
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Modul " + module.judul.capitalizeFirstofEach,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    "Di dokumen " + moduleDetail.judul,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "Halaman " + bookmark.halaman.toString(),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Icon(Icons.date_range, size: 15, color: Colors.white,),
+                        Text(
+                          "Ditandai pada tanggal " +
+                              DateFormat("dd MMMM yyyy")
+                                  .format(bookmark.tanggal),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          Container(
+            margin: EdgeInsets.only(),
+            padding: EdgeInsets.all(0),
+            width: double.infinity,
+            alignment: Alignment.topRight,
+            height: MediaQuery.of(context).size.height / 7,
+            // child: Icon(Icons.bookmark, size: 40),
+            child: Transform.rotate(
+              child: Icon(Icons.push_pin_sharp, size: 40, color: Color(0xff0ABDB6)),
+              angle: 45 * 3.14 / 180,
+            ),
+            // color: Colors.green.withOpacity(0.5),
+          ),
+        ],
       ),
     );
   }

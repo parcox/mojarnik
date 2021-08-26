@@ -50,34 +50,34 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   List mapResponse;
-  getUser() async {
-    var jsonData = null;
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    http.Response response;
-    try {
-      response = await http.get(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
-                  sharedPreferences.getInt("userId").toString()),
-          headers: {
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'token ' + sharedPreferences.getString("token")
-          });
-      if (response.statusCode == 200) {
-        jsonData = response.body;
-        String jsonDataString = jsonData.toString();
-        final jsonDataa = jsonDecode(jsonDataString);
-        sharedPreferences.setString("user_name",
-            jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
-        sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
-        sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
-      }
-    } catch (e) {
-      print(e);
-    }
-    return null;
-  }
+  // getUser() async {
+  //   var jsonData = null;
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   http.Response response;
+  //   try {
+  //     response = await http.get(
+  //         Uri.parse(
+  //             "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
+  //                 sharedPreferences.getInt("userId").toString()),
+  //         headers: {
+  //           'Content-type': 'application/json',
+  //           'Accept': 'application/json',
+  //           'Authorization': 'token ' + sharedPreferences.getString("token")
+  //         });
+  //     if (response.statusCode == 200) {
+  //       jsonData = response.body;
+  //       String jsonDataString = jsonData.toString();
+  //       final jsonDataa = jsonDecode(jsonDataString);
+  //       sharedPreferences.setString("user_name",
+  //           jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+  //       sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
+  //       sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //   return null;
+  // }
 
   logIn(String username, String password) async {
     if (username == "" || password == "") {
@@ -113,11 +113,6 @@ class _LoginPageState extends State<LoginPage> {
     var jsonData = null;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
-    // var map = new Map<String, dynamic>();
-    // map["username"] = "haris";
-    // map["password"] = "haris";
     try {
       response = await http.post(
           Uri.parse("https://mojarnik-server.herokuapp.com/api/token-auth/"),
@@ -144,40 +139,41 @@ class _LoginPageState extends State<LoginPage> {
             final jsonDataa = jsonDecode(jsonDataString);
             sharedPreferences.setString("user_name",
                 jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
-            sharedPreferences.setString("gender", jsonDataa["gender"]);
-            sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
-            try {
-              response = await http.get(
-                  Uri.parse(
-                      "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
-                          sharedPreferences.getInt("userId").toString()),
-                  headers: {
-                    'Content-type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization':
-                        'token ' + sharedPreferences.getString("token")
-                  });
-              if (response.statusCode == 200) {
-                var jsonData = jsonDecode(response.body);
-                String jsonDataString = json.encode(jsonData[0]);
-                final jsonDataa = jsonDecode(jsonDataString);
-                sharedPreferences.setInt("profilId", jsonDataa["id"]);
-                sharedPreferences.setInt("prodi", jsonDataa["prodi"]);
-                sharedPreferences.setString("semester", jsonDataa["semester"]);
-                sharedPreferences.setString("kelas", jsonDataa["kelas"]);
-                return Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => HomePage(
-                              kelas: sharedPreferences.getString("kelas"),
-                              prodi: sharedPreferences.getInt("prodi"),
-                              semester: sharedPreferences.getString("semester"),
-                            )),
-                    (Route<dynamic> route) => false);
-              }
-              return null;
-            } catch (e) {
-              print(e);
-            }
+            sharedPreferences.setString("foto", jsonDataa["foto"]);
+            // sharedPreferences.setString("gender", jsonDataa["gender"]);
+            // sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+            // try {
+            //   response = await http.get(
+            //       Uri.parse(
+            //           "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
+            //               sharedPreferences.getInt("userId").toString()),
+            //       headers: {
+            //         'Content-type': 'application/json',
+            //         'Accept': 'application/json',
+            //         'Authorization':
+            //             'token ' + sharedPreferences.getString("token")
+            //       });
+            //   if (response.statusCode == 200) {
+            //     var jsonData = jsonDecode(response.body);
+            //     String jsonDataString = json.encode(jsonData[0]);
+            //     final jsonDataa = jsonDecode(jsonDataString);
+            //     sharedPreferences.setInt("profilId", jsonDataa["id"]);
+            //     sharedPreferences.setInt("prodi", jsonDataa["prodi"]);
+            //     sharedPreferences.setString("semester", jsonDataa["semester"]);
+            //     sharedPreferences.setString("kelas", jsonDataa["kelas"]);
+            return Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => HomePage(
+                        // kelas: sharedPreferences.getString("kelas"),
+                        // prodi: sharedPreferences.getInt("prodi"),
+                        // semester: sharedPreferences.getString("semester"),
+                        )),
+                (Route<dynamic> route) => false);
+            //   }
+            //   return null;
+            // } catch (e) {
+            //   print(e);
+            // }
           }
         } catch (e) {
           print(e);
@@ -232,10 +228,11 @@ class _LoginPageState extends State<LoginPage> {
     if (sharedPreferences.getString("token") != null) {
       return Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => HomePage(
-                    kelas: sharedPreferences.getString("kelas"),
-                    prodi: sharedPreferences.getInt("prodi"),
-                    semester: sharedPreferences.getString("semester"),
+              builder: (context) => new HomePage(
+
+                  // kelas: sharedPreferences.getString("kelas"),
+                  // prodi: sharedPreferences.getInt("prodi"),
+                  // semester: sharedPreferences.getString("semester"),
                   )),
           (Route<dynamic> route) => false);
     }

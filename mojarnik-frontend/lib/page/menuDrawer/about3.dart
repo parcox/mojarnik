@@ -18,7 +18,7 @@ class _ThirdPageState extends State<ThirdPage> {
                 height: 200,
                 width: 200,
                 child: Image(
-                  image: AssetImage("asset/polnep.png"),
+                  image: AssetImage("asset/logoMojarnik.png"),
                 )),
           ),
           SizedBox(height: 20,),

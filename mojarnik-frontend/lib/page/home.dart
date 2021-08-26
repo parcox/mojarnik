@@ -13,11 +13,13 @@ import 'menuDrawer/home1.dart';
 import 'menuDrawer/settings2.dart';
 
 class HomePage extends StatefulWidget {
-  final int prodi;
-  final String semester;
-  final String kelas;
-  const HomePage({Key key, this.prodi, this.semester, this.kelas})
-      : super(key: key);
+  // final int prodi;
+  // final String semester;
+  // final String kelas;
+  const HomePage({
+    Key key,
+    //  this.prodi, this.semester, this.kelas
+  }) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -36,26 +38,26 @@ class _HomePageState extends State<HomePage> {
   """;
 
   List mapResponse;
-  getUser() async {
-    var jsonData = null;
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    http.Response response;
-    try {
-      if (response.statusCode == 200) {
-        jsonData = response.body;
-        String jsonDataString = jsonData.toString();
-        final jsonDataa = jsonDecode(jsonDataString);
-        sharedPreferences.setString("user_name",
-            jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
-        sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
-        sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
-        setState(() {});
-      }
-    } catch (e) {
-      print(e);
-    }
-    return null;
-  }
+  // getUser() async {
+  //   var jsonData = null;
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   http.Response response;
+  //   try {
+  //     if (response.statusCode == 200) {
+  //       jsonData = response.body;
+  //       String jsonDataString = jsonData.toString();
+  //       final jsonDataa = jsonDecode(jsonDataString);
+  //       sharedPreferences.setString("user_name",
+  //           jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+  //       // sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
+  //       // sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+  //       setState(() {});
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //   return null;
+  // }
 
   initPreference() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -114,6 +116,55 @@ class _HomePageState extends State<HomePage> {
         false;
   }
 
+  getImage() {
+    // if (sharedPreferences.getString("foto") == null) {
+    //   return AssetImage("asset/markZuck.png");
+    // } else {
+    //   try {
+    //     return NetworkImage(
+    //       sharedPreferences.getString("foto"),
+    //     );
+    //   } catch (e) {
+    //     return AssetImage("asset/markZuck.png");
+    //   }
+    // }
+    // try {
+    //   return Container(
+    //     height: 80,
+    //     width: 80,
+    //     decoration: BoxDecoration(
+    //       border: Border.all(),
+    //       shape: BoxShape.circle,
+    //       image: DecorationImage(
+    //         fit: BoxFit.cover,
+    //         // image: sharedPreferences.getString("foto") == null
+    //         //     ? AssetImage("asset/markZuck.png")
+    //         //     // NetworkImage("https://www.publicdomainpictures.net/pictures/320000/velka/background-image.png")
+    //         //     : NetworkImage(
+    //         //         sharedPreferences.getString("foto"),
+    //         //       ),
+    //         image: NetworkImage(
+    //           sharedPreferences.getString("foto"),
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // } catch (e) {
+      return Container(
+        height: 80,
+        width: 80,
+        decoration: BoxDecoration(
+          border: Border.all(),
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage("asset/markZuck.png"),
+          ),
+        ),
+      );
+    // }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -122,6 +173,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget build(BuildContext context) {
+    setState(() {});
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -154,14 +206,14 @@ class _HomePageState extends State<HomePage> {
                 ? TextButton(
                     onPressed: () {
                       setState(() {
-                        if (edit==true) {
+                        if (edit == true) {
                           edit = false;
-                        } else if (edit==false) {
+                        } else if (edit == false) {
                           edit = true;
                         }
                       });
                     },
-                    child: Icon(Icons.edit,color: Color(0xff0ABDB6)),
+                    child: Icon(Icons.edit, color: Color(0xff0ABDB6)),
                   )
                 : TextButton(
                     onPressed: () {
@@ -255,18 +307,7 @@ class _HomePageState extends State<HomePage> {
                 Divider(
                   color: Colors.black.withOpacity(0.5),
                 ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage("asset/markZuck.png"),
-                    ),
-                  ),
-                ),
+                getImage(),
                 SizedBox(
                   height: 10,
                 ),
@@ -398,10 +439,10 @@ class _HomePageState extends State<HomePage> {
         ),
         body: [
           FirstPage(
-            kelas: widget.kelas,
-            prodi: widget.prodi,
-            semester: widget.semester,
-          ),
+              // kelas: widget.kelas,
+              // prodi: widget.prodi,
+              // semester: widget.semester,
+              ),
           FourthPage(),
           SecondPage(
             isEdit: edit,

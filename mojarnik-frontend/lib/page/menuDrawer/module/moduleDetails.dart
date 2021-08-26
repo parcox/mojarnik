@@ -153,12 +153,7 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                     mainAxisSpacing: 5,
                     crossAxisCount: 2,
                     children: modulD
-                        .map(
-                          (e) => ModuleFiles(
-                            module: e,
-                            page: 1,
-                          ),
-                        )
+                        .map((e) => ModuleFiles(module: e, page: 1))
                         .toList());
               }
               return Center(child: CircularProgressIndicator());

@@ -5,6 +5,7 @@ import 'package:mojarnik/instansi/prodi.dart';
 import 'package:mojarnik/moduleClass/bookmarks.dart';
 import 'package:mojarnik/moduleClass/module.dart';
 import 'package:mojarnik/moduleClass/moduleDetail.dart';
+import 'package:mojarnik/page/home.dart';
 import 'package:mojarnik/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -237,12 +238,14 @@ class _FourthPageState extends State<FourthPage> {
                                       moduleDetail: modul,
                                       module: moduls.firstWhere((element) =>
                                           element.id == modul.emodul),
-                                      makul: makul.firstWhere((element) =>
-                                          element.id ==
-                                          (moduls
-                                              .firstWhere((element) =>
-                                                  element.id == modul.emodul)
-                                              .id)),
+                                      makul: makul.firstWhere(
+                                        (element) =>
+                                            element.id ==
+                                            (moduls
+                                                .firstWhere((element) =>
+                                                    element.id == modul.emodul)
+                                                .id),
+                                      ),
                                     );
                                   }
                                   return Container();

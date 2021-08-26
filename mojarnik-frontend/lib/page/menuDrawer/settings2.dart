@@ -12,8 +12,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class SecondPage extends StatefulWidget {
-  final bool isEdit;
-  const SecondPage({Key key, this.isEdit}) : super(key: key);
+  bool isEdit;
+  SecondPage({Key key, this.isEdit}) : super(key: key);
   @override
   _SecondPageState createState() => _SecondPageState();
 }
@@ -21,13 +21,17 @@ class SecondPage extends StatefulWidget {
 class _SecondPageState extends State<SecondPage> {
   // String phoneNumber = "081351963101";
   // XFile _image;
-  TextEditingController nameController = TextEditingController();
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController hpController = TextEditingController();
+  TextEditingController kelasController = TextEditingController();
   SharedPreferences sharedPreferences;
+  bool isUpdating = false;
   var _image;
   bool isLoading = true;
   bool isStart = true;
+  bool isStart2 = true;
   User user;
   Mahasiswa profil;
   int _radioValue;
@@ -123,50 +127,483 @@ class _SecondPageState extends State<SecondPage> {
     }
   }
 
-  ubahProfil(
-    String first_name,
-    String last_name,
-    int gender,
-    String email,
-    String kelas,
-  ) async {
-    http.Response response;
-    try {
-      response = await http.patch(
-          Uri.parse(
-              "http://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/" +
-                  sharedPreferences.getInt("profilId").toString()),
-          body: {
-            "kelas": kelas,
-          },
-          headers: {
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'token ' + sharedPreferences.getString("token")
-          });
-      if (response.statusCode == 200) {
-        setState(() {});
-      }
-    } catch (e) {}
+  List<Widget> buildTf() {
+    firstNameController.text = user.firstName;
+    lastNameController.text = user.lastName;
+    List<Widget> row = [
+      Expanded(
+        child: TextField(
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.all(0),
+
+            // labelText: "First Name",
+            // labelStyle: TextStyle(fontSize: 20),
+          ),
+          controller: firstNameController,
+        ),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Expanded(
+        child: TextField(
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.all(0),
+            // labelText: "Last Name",
+            // labelStyle: TextStyle(fontSize: 20),
+          ),
+          controller: lastNameController,
+        ),
+      ),
+    ];
+    return row;
   }
 
-  // _imgFromCamera() async {
-  //   XFile image = await ImagePicker.pickImage(
-  //       source: ImageSource.camera, imageQuality: 50);
+  ubahProfil(String firstName, String lastName, int gender, String noHp,
+      String kelas) async {
+    String url1 =
+        "http://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/" +
+            profil.id.toString() +
+            "/";
+    String url2 =
+        "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
+            user.id.toString() +
+            "/";
+    String token = sharedPreferences.getString("token");
+    Map<String, String> headers = {'Authorization': 'token ' + token};
+    http.Response response;
+    try {
+      response = await http.patch(Uri.parse(url1),
+          body: {
+            // "first_name": firstName,
+            // "last_name": lastName,
+            // "gender": gender,
+            // "no_hp": noHp,
+            "kelas": kelas,
+          },
+          headers: headers);
+      if (response.statusCode == 200) {
+        print("Sukses update mahasiswa");
+        try {
+          response = await http.patch(Uri.parse(url2),
+              body: {
+                "first_name": firstName,
+                "last_name": lastName,
+                "gender": gender.toString(),
+                "no_hp": noHp,
+                // "kelas": kelas,
+              },
+              headers: headers);
+          if (response.statusCode == 200) {
+            var jsonData = response.body;
+            String jsonDataString = jsonData.toString();
+            final jsonDataa = jsonDecode(jsonDataString);
+            sharedPreferences.setString("user_name",
+                jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+            print("Sukses update user");
+            setState(() {
+              if (isUpdating) {
+                isUpdating = false;
+                widget.isEdit = false;
+              }
+            });
+          }
+        } catch (e) {
+          print("Gagal update user");
+          print(e);
+        }
+      }
+    } catch (e) {
+      print("Gagal update mahasiswa");
+      print(e);
+    }
+  }
 
-  //   setState(() {
-  //     _image = image;
-  //   });
-  // }
+  Widget buildPageAfterLoading() {
+    return ListView(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Stack(
+              children: [
+                Container(
+                  clipBehavior: Clip.antiAlias,
+                  height: 150,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  // child: _image != null
+                  //     ? Image.file(
+                  //         File(_image.path),
+                  //         fit: BoxFit.cover,
+                  //       )
+                  //     : Image(
+                  //         image: AssetImage("asset/markZuck.png"),
+                  //         fit: BoxFit.cover,
+                  //       ),
+                  child: Image(
+                    image: tampilkanImage2(),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: widget.isEdit
+                      ? InkWell(
+                          onTap: () {
+                            getImage(ImgSource.Both);
+                          },
+                          child: Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xff0ABDB6)),
+                            child: Icon(
+                              Icons.photo_camera_outlined,
+                              color: Colors.white,
+                              size: 25,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          // color: Colors.red,
+          child: Column(
+            children: [
+              // SettingsItem(
+              //   title: "Name",
+              //   // content: sharedPreferences
+              //   //     .getString("user_name")
+              //   //     .capitalizeFirstofEach,
+              //   content:
+              //       (user.username + " " + user.lastName).capitalizeFirstofEach,
+              //   isEditable: widget.isEdit,
+              //   controller: nameController,
+              // ),
+              Container(
+                // height: 150,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        // child: Text(
+                        //   widget.isEdit?"Nama Depan & Nama Belakang":"Nama",
+                        //   style: TextStyle(
+                        //     color: Color(0xff939393),
+                        //     fontSize: 18,
+                        //   ),
+                        child: widget.isEdit
+                            ? Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      "Nama Depan",
+                                      style: TextStyle(
+                                        color: Color(0xff939393),
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      "Nama Belakang",
+                                      style: TextStyle(
+                                        color: Color(0xff939393),
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                "Nama",
+                                style: TextStyle(
+                                  color: Color(0xff939393),
+                                  fontSize: 18,
+                                ),
+                              )),
+                    Row(
+                      children: widget.isEdit
+                          ? buildTf()
+                          : [
+                              Text(
+                                (user.firstName + " " + user.lastName)
+                                    .capitalizeFirstofEach,
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ],
+                    ),
+                  ],
+                ),
+              ),
+              SettingsItem(
+                title: "NIM",
+                content: profil.nim,
+                isEditable: false,
+              ),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        "Jenis Kelamin",
+                        style: TextStyle(
+                          color: Color(0xff939393),
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: widget.isEdit
+                              ? buildRadio()
+                              : Text(
+                                  user.gender == 1 ? "Laki-laki" : "Perempuan",
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SettingsItem(
+                title: "Nomor Telepon",
+                content: user.noHp,
+                // content: sharedPreferences.getString("noHp"),
+                isEditable: widget.isEdit,
+                controller: hpController,
+              ),
+              SettingsItem(
+                title: "Kelas",
+                content: profil.kelas,
+                // content: sharedPreferences.getString("noHp"),
+                isEditable: widget.isEdit,
+                controller: kelasController,
+              ),
+            ],
+          ),
+          // child: Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     Padding(
+          //       padding: const EdgeInsets.only(top: 10),
+          //       child: Text(
+          //         "Name",
+          //         style: TextStyle(
+          //           color: Color(0xff939393),
+          //           fontSize: 18,
+          //         ),
+          //       ),
+          //     ),
+          //     Row(
+          //       children: [
+          //         Expanded(
+          //           child: Text(
+          //             sharedPreferences?.getString("name") ?? "",
+          //             style: TextStyle(fontSize: 20),
+          //           ),
+          //         ),
+          //         Icon(Icons.edit),
+          //       ],
+          //     )
+          //   ],
+          // ),
+        ),
+        widget.isEdit
+            ? Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xff0ABDB6))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text("Save"),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isStart = true;
+                      isUpdating = true;
+                    });
+                    ubahProfil(
+                        firstNameController.text,
+                        lastNameController.text,
+                        _radioValue,
+                        hpController.text,
+                        kelasController.text);
+                  },
+                ),
+              )
+            : Container(),
+      ],
+    );
+  }
 
-  // _imgFromGallery() async {
-  //   XFile image = await ImagePicker.pickImage(
-  //       source: ImageSource.gallery, imageQuality: 50);
+  Widget buildPageBeforeLoading() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            height: 150,
+            width: 150,
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+            // child: _image != null
+            //     ? Image.file(
+            //         File(_image.path),
+            //         fit: BoxFit.cover,
+            //       )
+            //     : Image(
+            //         image: AssetImage("asset/markZuck.png"),
+            //         fit: BoxFit.cover,
+            //       ),
+            // child: Image(
+            //   image: tampilkanImage2(),
+            //   fit: BoxFit.cover,
+            // ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            color: Colors.grey.withOpacity(0.3),
+            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: EdgeInsets.all(10),
+            // child: Center(
+            //   child: CircularProgressIndicator(color: Colors.white),
+            // ),
 
-  //   setState(() {
-  //     _image = image;
-  //   });
-  // }
+            // // color: Colors.red,
+            // child: Column(
+            //   children: [
+            //     SettingsItem(
+            //       title: "Name",
+            //       // content: sharedPreferences
+            //       //     .getString("user_name")
+            //       //     .capitalizeFirstofEach,
+            //       content:
+            //           (user.username + " " + user.lastName).capitalizeFirstofEach,
+            //       isEditable: widget.isEdit,
+            //       controller: nameController,
+            //     ),
+            //     SettingsItem(
+            //       title: "NIM",
+            //       content: profil.nim,
+            //       isEditable: false,
+            //     ),
+            //     Container(
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Padding(
+            //             padding: const EdgeInsets.only(top: 10),
+            //             child: Text(
+            //               "Jenis Kelamin",
+            //               style: TextStyle(
+            //                 color: Color(0xff939393),
+            //                 fontSize: 18,
+            //               ),
+            //             ),
+            //           ),
+            //           Row(
+            //             children: [
+            //               Expanded(
+            //                 child: widget.isEdit
+            //                     ? buildRadio()
+            //                     : Text(
+            //                         user.gender == 1 ? "Laki-laki" : "Perempuan",
+            //                         style: TextStyle(fontSize: 20),
+            //                       ),
+            //               ),
+            //             ],
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //     SettingsItem(
+            //       title: "Phone Number",
+            //       content: user.noHp,
+            //       // content: sharedPreferences.getString("noHp"),
+            //       isEditable: widget.isEdit,
+            //       controller: hpController,
+            //     ),
+            //   ],
+            // ),
+            // // child: Column(
+            // //   crossAxisAlignment: CrossAxisAlignment.start,
+            // //   children: [
+            // //     Padding(
+            // //       padding: const EdgeInsets.only(top: 10),
+            // //       child: Text(
+            // //         "Name",
+            // //         style: TextStyle(
+            // //           color: Color(0xff939393),
+            // //           fontSize: 18,
+            // //         ),
+            // //       ),
+            // //     ),
+            // //     Row(
+            // //       children: [
+            // //         Expanded(
+            // //           child: Text(
+            // //             sharedPreferences?.getString("name") ?? "",
+            // //             style: TextStyle(fontSize: 20),
+            // //           ),
+            // //         ),
+            // //         Icon(Icons.edit),
+            // //       ],
+            // //     )
+            // //   ],
+            // // ),
+          ),
+        ),
+        // widget.isEdit
+        //     ? Padding(
+        //         padding: const EdgeInsets.only(top: 20),
+        //         child: ElevatedButton(
+        //           style: ButtonStyle(
+        //               backgroundColor:
+        //                   MaterialStateProperty.all(Color(0xff0ABDB6))),
+        //           child: Padding(
+        //             padding: const EdgeInsets.all(20),
+        //             child: Text("Save"),
+        //           ),
+        //           onPressed: () {
+        //             setState(() {
+        //               isStart = true;
+        //             });
+        //           },
+        //         ),
+        //       )
+        //     : Container(),
+      ],
+    );
+  }
+
   Widget buildRadio() {
     return Row(
       children: [
@@ -177,12 +614,13 @@ class _SecondPageState extends State<SecondPage> {
                 value: 1,
                 groupValue: _radioValue,
                 onChanged: _handleRadio,
-                activeColor: Theme.of(context).accentColor,
+                activeColor: Color(0xff0ABDB6),
               ),
               Text(
                 "Laki-laki",
                 style: TextStyle(
-                  color: Theme.of(context).accentColor,
+                  color: Color(0xff0ABDB6),
+                  fontWeight: _radioValue==1? FontWeight.bold:FontWeight.w400,
                 ),
               ),
             ],
@@ -195,12 +633,15 @@ class _SecondPageState extends State<SecondPage> {
                 value: 2,
                 groupValue: _radioValue,
                 onChanged: _handleRadio,
-                activeColor: Theme.of(context).accentColor,
+                activeColor: Color(0xff0ABDB6),
               ),
-              Text("Perempuan",
-                  style: TextStyle(
-                    color: Theme.of(context).accentColor,
-                  )),
+              Text(
+                "Perempuan",
+                style: TextStyle(
+                  color: Color(0xff0ABDB6),
+                  fontWeight: _radioValue==2? FontWeight.bold:FontWeight.w400,
+                ),
+              ),
             ],
           ),
         ),
@@ -231,171 +672,40 @@ class _SecondPageState extends State<SecondPage> {
   Widget build(BuildContext context) {
     isStart ? getData() : null;
     // getMahasiswa();
-    print(nameController.text.split(" "));
     return isLoading
-        ? Center(
-            child: CircularProgressIndicator(
-              color: Color(0xff0ABDB6),
-            ),
-          )
-        : ListView(
+        ?
+        // Center(
+        //     child: CircularProgressIndicator(
+        //       color: Color(0xff0ABDB6),
+        //     ),
+        //   )
+        buildPageBeforeLoading()
+        : Stack(
             children: [
-              Container(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Stack(
-                    children: [
-                      Container(
-                        clipBehavior: Clip.antiAlias,
-                        height: 150,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        // child: _image != null
-                        //     ? Image.file(
-                        //         File(_image.path),
-                        //         fit: BoxFit.cover,
-                        //       )
-                        //     : Image(
-                        //         image: AssetImage("asset/markZuck.png"),
-                        //         fit: BoxFit.cover,
-                        //       ),
-                        child: Image(
-                          image: tampilkanImage2(),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: InkWell(
-                          onTap: () {
-                            getImage(ImgSource.Both);
-                          },
-                          child: Container(
-                            width: 45,
-                            height: 45,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xff0ABDB6)),
-                            child: Icon(
-                              Icons.photo_camera_outlined,
-                              color: Colors.white,
-                              size: 25,
+              buildPageAfterLoading(),
+              isUpdating
+                  ? Container(
+                      height: MediaQuery.of(context).size.height,
+                      color: Colors.grey.withOpacity(0.4),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              color: Color(0xff0ABDB6),
                             ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                // color: Colors.red,
-                child: Column(
-                  children: [
-                    SettingsItem(
-                      title: "Name",
-                      // content: sharedPreferences
-                      //     .getString("user_name")
-                      //     .capitalizeFirstofEach,
-                      content: (user.username + " " + user.lastName)
-                          .capitalizeFirstofEach,
-                          isEditable: widget.isEdit,
-                      controller: nameController,
-                    ),
-                    SettingsItem(
-                      title: "NIM",
-                      content: "3201816094",
-                      isEditable: false,
-                    ),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(
-                              "Jenis Kelamin",
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              "Updating Data...",
                               style: TextStyle(
-                                color: Color(0xff939393),
-                                fontSize: 18,
-                              ),
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold),
                             ),
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: widget.isEdit
-                                    ? buildRadio()
-                                    : Text(
-                                        user.gender == 1
-                                            ? "Laki-laki"
-                                            : "Perempuan",
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    SettingsItem(
-                      title: "Phone Number",
-                      content: user.noHp,
-                      // content: sharedPreferences.getString("noHp"),
-                      isEditable: widget.isEdit,
-                      controller: hpController,
-                    ),
-                  ],
-                ),
-                // child: Column(
-                //   crossAxisAlignment: CrossAxisAlignment.start,
-                //   children: [
-                //     Padding(
-                //       padding: const EdgeInsets.only(top: 10),
-                //       child: Text(
-                //         "Name",
-                //         style: TextStyle(
-                //           color: Color(0xff939393),
-                //           fontSize: 18,
-                //         ),
-                //       ),
-                //     ),
-                //     Row(
-                //       children: [
-                //         Expanded(
-                //           child: Text(
-                //             sharedPreferences?.getString("name") ?? "",
-                //             style: TextStyle(fontSize: 20),
-                //           ),
-                //         ),
-                //         Icon(Icons.edit),
-                //       ],
-                //     )
-                //   ],
-                // ),
-              ),
-              widget.isEdit
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Color(0xff0ABDB6))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Text("Save"),
+                          ],
                         ),
-                        onPressed: () {
-                          setState(() {
-                            isStart=true;
-                          });
-                        },
                       ),
                     )
                   : Container(),

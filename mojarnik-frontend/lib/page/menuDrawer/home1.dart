@@ -25,6 +25,7 @@ class FirstPage extends StatefulWidget {
 
 class _FirstPageState extends State<FirstPage> {
   bool done = false;
+  bool secondDone = false;
   int jumlahModul = 0;
   int idProdi;
   Mahasiswa mahasiswa;
@@ -34,20 +35,36 @@ class _FirstPageState extends State<FirstPage> {
   Prodi prodiMhs;
   Jurusan jurusanMhs;
   SharedPreferences sharedPreferences;
-  // List<Map<String, dynamic>> listMakul = [
-  //   {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
-  //   {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
-  //   {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
-  //   {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
-  // ];
-  // List<Map<String, dynamic>> listProdi = [
-  //   {"id": 1, "prodi": "D-III Teknik Informatika", "jurusan": "Teknik Elektro"},
-  // ];
   List mapResponse;
+  List<Widget> listWidget=[
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                  ];
+
   Future<List<Modules>> getModules() async {
     http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
     try {
       response = await http.get(
           Uri.parse("https://mojarnik-server.herokuapp.com/api/emodul/emodul/"),
@@ -142,6 +159,7 @@ class _FirstPageState extends State<FirstPage> {
                       jurusanMhs = jurusan
                           .firstWhere((element) => element.id == prodiMhs.id);
                       done = true;
+                      secondDone = done;
                     });
                   }
                 } catch (e) {
@@ -162,110 +180,20 @@ class _FirstPageState extends State<FirstPage> {
     }
   }
 
-  Future<Jurusan> getJurusan(int idJurusan) async {
-    http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
-    try {
-      response = await http.get(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/akademik/jurusan/" +
-                  idJurusan.toString()),
-          headers: {
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'token ' + sharedPreferences.getString("token")
-          });
-      if (response.statusCode == 200) {
-        var jsonn = jsonDecode(response.body);
-        return Jurusan.fromJson(jsonn);
-      }
-
-      return null;
-    } catch (e) {}
-  }
-
   initPreference() async {
     sharedPreferences = await SharedPreferences.getInstance();
     setState(() {});
   }
 
-  // void setData() async {
-  //   http.Response response;
-  //   response = await http.get(
-  //       Uri.parse(
-  //           "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
-  //               sharedPreferences.getInt("userId").toString()),
-  //       headers: {
-  //         'Content-type': 'application/json',
-  //         'Accept': 'application/json',
-  //         'Authorization': 'token ' + sharedPreferences.getString("token")
-  //       });
-  //   if (response.statusCode == 200) {
-  //     print("Suskes get mahasiswa");
-  //     var jsonData = jsonDecode(response.body);
-  //     mahasiswa = Mahasiswa.fromJson(jsonData[0]);
-  //     response = await http.get(
-  //         Uri.parse(
-  //             "https://mojarnik-server.herokuapp.com/api/akademik/programstudi/" +
-  //                 mahasiswa.prodi.toString()),
-  //         headers: {
-  //           'Content-type': 'application/json',
-  //           'Accept': 'application/json',
-  //           'Authorization': 'token ' + sharedPreferences.getString("token")
-  //         });
-  //     if (response.statusCode == 200) {
-  //       print("Suskes get prodi");
-  //       var jsonn = jsonDecode(response.body);
-  //       prodi = Prodi.fromJson(jsonn);
-  //       response = await http.get(
-  //           Uri.parse(
-  //               "https://mojarnik-server.herokuapp.com/api/akademik/jurusan/" +
-  //                   prodi.jurusan.toString()),
-  //           headers: {
-  //             'Content-type': 'application/json',
-  //             'Accept': 'application/json',
-  //             'Authorization': 'token ' + sharedPreferences.getString("token")
-  //           });
-  //       if (response.statusCode == 200) {
-  //         print("Suskes get jurusan");
-  //         var jsonn = jsonDecode(response.body);
-  //         jurusan = Jurusan.fromJson(jsonn);
-  //         setState(() {});
-  //       } else {
-  //         print("error set mahasiswa");
-  //       }
-  //     } else {
-  //       print("error set mahasiswa");
-  //     }
-  //   } else {
-  //     print("error set mahasiswa");
-  //   }
-  // }
+  Future _refreshData() async {
+    await Future.delayed(Duration(seconds: 3));
+    // done = false;
 
-  // Future<List<Mahasiswa>> getUser() async {
-  //   http.Response response;
-  //   // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-  //   //     as Uri;
-  //   try {
-  //     response = await http.get(
-  //         Uri.parse(
-  //             "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
-  //                 sharedPreferences.getInt("userId").toString()),
-  //         headers: {
-  //           'Content-type': 'application/json',
-  //           'Accept': 'application/json',
-  //           'Authorization': 'token ' + sharedPreferences.getString("token")
-  //         });
-  //     if (response.statusCode == 200) {
-  //       mapResponse = json.decode(response.body);
-  //       return mapResponse.map((e) => Mahasiswa.fromJson(e)).toList().cast();
-  //     }
-  //     return null;
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+    setState(() {
+      secondDone = false;
+    });
+  }
+
   void initState() {
     super.initState();
     initPreference();
@@ -274,105 +202,12 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(done);
-    done==false ? getData() : null;
-    return done==false ?Center(
-            child: CircularProgressIndicator(
-              color: Color(0xff0ABDB6),
-            ),
-          ):Stack(
+    done == false ? getData() : null;
+    secondDone == false ? getData() : null;
+    return Stack(
       children: [
         NestedScrollView(
           headerSliverBuilder: (context, child) => [
-            // SliverToBoxAdapter(
-            //   child: Stack(
-            //     children: [
-            //       Container(
-            //         height: 200,
-            //         width: MediaQuery.of(context).size.width,
-            //         color: Color(0xff1ABAB9),
-            //       ),
-            //       Center(
-            //         child: Opacity(
-            //           opacity: 0.25,
-            //           child: Image(
-            //             height: 200,
-            //             image: AssetImage("asset/polnep.png"),
-            //           ),
-            //         ),
-            //       ),
-            //       Container(
-            //         height: 200,
-            //         width: MediaQuery.of(context).size.width,
-            //         decoration: BoxDecoration(
-            //           gradient: LinearGradient(
-            //             begin: Alignment.centerLeft,
-            //             end: Alignment.centerRight,
-            //             colors: [
-            //               Color(0xff19B5B4).withOpacity(0.37),
-            //               Colors.white.withOpacity(0.37),
-            //               Color(0xff19B5B4).withOpacity(0.37),
-            //             ],
-            //           ),
-            //         ),
-            //       ),
-            //       Container(
-            //         height: 200,
-            //         width: MediaQuery.of(context).size.width,
-            //         color: Colors.black.withOpacity(0.21),
-            //         child: Column(
-            //           mainAxisAlignment: MainAxisAlignment.center,
-            //           children: [
-            //             Text(
-            //               idProdi == null
-            //                   ? "Jurusan"
-            //                   : listProdi.firstWhere((element) =>
-            //                       element["id"] == idProdi)["jurusan"],
-            //               // widget.prodi.toString(),
-            //               // "tes",
-            //               // "jurusan",
-            //               style: TextStyle(
-            //                   fontSize: 35,
-            //                   color: Colors.white,
-            //                   fontWeight: FontWeight.w300),
-            //             ),
-            //             Padding(
-            //               padding: const EdgeInsets.symmetric(vertical: 10),
-            //               child: Text(
-            //                 idProdi == null
-            //                     ? "Program Studi"
-            //                     : listProdi.firstWhere((element) =>
-            //                         element["id"] == idProdi)["prodi"],
-            //                 // widget.prodi.toString(),
-            //                 // "prodi",
-            //                 // "tes",
-            //                 style: TextStyle(
-            //                     fontSize: 23,
-            //                     color: Colors.white,
-            //                     fontWeight: FontWeight.w300),
-            //               ),
-            //             ),
-            //             Text(
-            //               "Semester " +
-            //                   int.parse(widget.semester).toRomanNumeralString(),
-            //               style: TextStyle(
-            //                   fontSize: 20,
-            //                   color: Colors.white,
-            //                   fontWeight: FontWeight.w300),
-            //             ),
-            //             Text(
-            //               "Kelas " + widget.kelas,
-            //               style: TextStyle(
-            //                   fontSize: 20,
-            //                   color: Colors.white,
-            //                   fontWeight: FontWeight.w300),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             SliverToBoxAdapter(
               child: Stack(
                 children: [
@@ -405,6 +240,13 @@ class _FirstPageState extends State<FirstPage> {
                       ),
                     ),
                   ),
+                  // done == false
+                  //     ? Center(
+                  //         child: CircularProgressIndicator(
+                  //           color: Color(0xff0ABDB6),
+                  //         ),
+                  //       )
+                  // :
                   Container(
                     height: 200,
                     width: MediaQuery.of(context).size.width,
@@ -413,7 +255,9 @@ class _FirstPageState extends State<FirstPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          jurusanMhs.nama.capitalizeFirstofEach,
+                          done
+                              ? jurusanMhs.nama.capitalizeFirstofEach
+                              : "Jurusan",
                           // widget.prodi.toString(),
                           // "tes",
                           // "jurusan",
@@ -425,7 +269,9 @@ class _FirstPageState extends State<FirstPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
-                            prodiMhs.nama.capitalizeFirstofEach,
+                            done
+                                ? prodiMhs.nama.capitalizeFirstofEach
+                                : "Program Studi",
                             // widget.prodi.toString(),
                             // "prodi",
                             // "tes",
@@ -437,14 +283,18 @@ class _FirstPageState extends State<FirstPage> {
                         ),
                         Text(
                           "Semester " +
-                              int.parse(mahasiswa.semester).toRomanNumeralString(),
+                              (done
+                                  ? int.parse(mahasiswa.semester)
+                                      .toRomanNumeralString()
+                                  : "0"),
                           style: TextStyle(
                               fontSize: 20,
                               color: Colors.white,
                               fontWeight: FontWeight.w300),
                         ),
                         Text(
-                          "Kelas " + mahasiswa.kelas.toUpperCase(),
+                          "Kelas " +
+                              (done ? mahasiswa.kelas.toUpperCase() : " "),
                           style: TextStyle(
                               fontSize: 20,
                               color: Colors.white,
@@ -488,27 +338,50 @@ class _FirstPageState extends State<FirstPage> {
               ),
             )
           ],
-          body: FutureBuilder<List<Modules>>(
-            future: getModules(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                var modul = List.from(snapshot.data);
+          body:
+              // secondDone == false
+              // ?
+              // Center(
+              //     child: CircularProgressIndicator(
+              //       color: Color(0xff0ABDB6),
+              //     ),
+              //   )
+              // :
+              RefreshIndicator(
+            onRefresh: _refreshData,
+            child: FutureBuilder<List<Modules>>(
+              future: getModules(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var modul = List.from(snapshot.data);
+                  return GridView.count(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
+                      crossAxisCount: 2,
+                      children: secondDone?modul
+                          .map((e) => Module(
+                                modul: e,
+                                makul: makul,
+                              ))
+                          .toList():listWidget);
+                } else if (snapshot.hasError) {
+                  return Container(
+                    color: Colors.black.withOpacity(0.1),
+                    child: Center(
+                      child: Text("Error Occured"),
+                    ),
+                  );
+                }
                 return GridView.count(
-                    padding: EdgeInsets.symmetric(horizontal: 2),
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    crossAxisCount: 2,
-                    children: modul.map((e) => Module(modul: e,makul: makul,)).toList());
-              } else if (snapshot.hasError) {
-                return Container(
-                  color: Colors.black.withOpacity(0.1),
-                  child: Center(
-                    child: Text("Error Occured"),
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                  crossAxisCount: 2,
+                  children: listWidget,
                 );
-              }
-              return Center(child: CircularProgressIndicator());
-            },
+              },
+            ),
           ),
           // Module(
           //   date: "13 March 2021",
