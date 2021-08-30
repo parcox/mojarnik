@@ -12,19 +12,17 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ReadingPage extends StatefulWidget {
-  // final String title;
-  // final String pdf;
   final int page;
-  // final int id;
   final ModuleDetail modul;
-  // const ReadingPage({Key key, this.title, this.pdf, this.page, this.id}): super(key: key);
   const ReadingPage({Key key, this.modul, this.page}) : super(key: key);
   @override
   _ReadingPageState createState() => _ReadingPageState();
 }
 
 class _ReadingPageState extends State<ReadingPage> {
+  bool adding = false;
   FocusNode fcComment = FocusNode();
+  bool userFilled = false;
   TextEditingController tfBookmark = TextEditingController();
   PdfViewerController _pdfViewerController;
   OverlayEntry _overlayEntry;
@@ -32,6 +30,8 @@ class _ReadingPageState extends State<ReadingPage> {
   TextEditingController comment = TextEditingController();
   bool isError = false;
   bool isLoading = false;
+  String error = "";
+  List<User> listUser = [];
   void showBottom() {
     showFlexibleBottomSheet(
       minHeight: 0,
@@ -44,34 +44,50 @@ class _ReadingPageState extends State<ReadingPage> {
   }
 
   List mapResponse;
-  Future<List<User>> getUser() async {
+  getUser() async {
     try {
       http.Response response;
-      // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-      //     as Uri;
       response = await http.get(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/accounts/customuser/"),
+          Uri.parse("http://mojarnik.online/api/accounts/customuser/"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'token ' + sharedPreferences.getString("token")
           });
       if (response.statusCode == 200) {
-        mapResponse = json.decode(response.body);
-        return mapResponse.map((e) => User.fromJson(e)).toList().cast();
+        var jsonData = jsonDecode(response.body);
+        for (var i = 0; i < jsonData.length; i++) {
+          listUser.add(User.fromJson(jsonData[i]));
+        }
+        setState(() {
+          userFilled = true;
+        });
       }
     } catch (e) {}
   }
 
+  // Future<List<User>> futureGetUser() async {
+  //   try {
+  //     http.Response response;
+  //     response = await http.get(
+  //         Uri.parse("http://mojarnik.online/api/accounts/customuser/"),
+  //         headers: {
+  //           'Content-type': 'application/json',
+  //           'Accept': 'application/json',
+  //           'Authorization': 'token ' + sharedPreferences.getString("token")
+  //         });
+  //     if (response.statusCode == 200) {
+  //       mapResponse = json.decode(response.body);
+  //       return mapResponse.map((e) => User.fromJson(e)).toList().cast();
+  //     }
+  //   } catch (e) {}
+  // }
+
   Future<List<Komentar>> getComment() async {
     http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
     try {
       response = await http.get(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/emodul/emodulcomment"),
+          Uri.parse("http://mojarnik.online/api/emodul/emodulcomment"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -81,7 +97,6 @@ class _ReadingPageState extends State<ReadingPage> {
         mapResponse = json.decode(response.body);
         return mapResponse.map((e) => Komentar.fromJson(e)).toList().cast();
       }
-
       return null;
     } catch (e) {}
   }
@@ -93,8 +108,7 @@ class _ReadingPageState extends State<ReadingPage> {
     http.Response response;
     try {
       response = await http.post(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/emodul/emodulbookmark/"),
+          Uri.parse("http://mojarnik.online/api/emodul/emodulbookmark/"),
           body: {
             "halaman": "$halaman",
             "dokumen": "$dokumen",
@@ -117,8 +131,7 @@ class _ReadingPageState extends State<ReadingPage> {
     http.Response response;
     try {
       response = await http.post(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/emodul/emodulcomment/"),
+          Uri.parse("http://mojarnik.online/api/emodul/emodulcomment/"),
           body: {
             "comment": "$_comment",
             "dokumen": "$_dokumen",
@@ -131,18 +144,13 @@ class _ReadingPageState extends State<ReadingPage> {
         setState(() {
           comment.clear();
           FocusManager.instance.primaryFocus?.unfocus();
-          isLoading = false;
         });
-        // 
+        //
       } else
         print(response.statusCode);
     } catch (e) {}
   }
 
-  // Future<List<int>> _readDocumentData(String name) async {
-  //   final ByteData data = await rootBundle.load("assets/$name");
-  //   return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-  // }
   initPreference() async {
     sharedPreferences = await SharedPreferences.getInstance();
     setState(() {});
@@ -154,69 +162,6 @@ class _ReadingPageState extends State<ReadingPage> {
     _pdfViewerController = PdfViewerController();
     super.initState();
     initPreference();
-  }
-
-  void _showContextMenu(
-      BuildContext context, PdfTextSelectionChangedDetails details) {
-    final OverlayState _overlayState = Overlay.of(context);
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: details.globalSelectedRegion.center.dy - 55,
-        left: details.globalSelectedRegion.bottomLeft.dx,
-        child: Container(
-          height: 40,
-          clipBehavior: Clip.antiAlias,
-          margin: EdgeInsets.all(0),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey)),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                SizedBox(
-                  height: double.infinity,
-                  child: TextButton(
-                    onPressed: () {
-                      Clipboard.setData(
-                          ClipboardData(text: details.selectedText));
-                      print('Text copied to clipboard: ' +
-                          details.selectedText.toString());
-                      _pdfViewerController.clearSelection();
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
-                      // elevation: MaterialStateProperty.all(10),
-                    ),
-                    child: Text('Copy',
-                        style: TextStyle(fontSize: 17, color: Colors.black)),
-                  ),
-                ),
-                VerticalDivider(
-                  thickness: 1,
-                  width: 2,
-                  color: Colors.grey.withOpacity(0.6),
-                ),
-                SizedBox(
-                  height: double.infinity,
-                  child: TextButton(
-                    onPressed: () {
-                      // PdfDocument document = PdfDocument(inputBytes: await _readDocumentData(‘pdf_succinctly.pdf’));
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
-                      // elevation: MaterialStateProperty.all(10),
-                    ),
-                    child: Text('Highlight',
-                        style: TextStyle(fontSize: 17, color: Colors.black)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    _overlayState.insert(_overlayEntry);
   }
 
   Widget _buildBottomSheet(
@@ -283,16 +228,19 @@ class _ReadingPageState extends State<ReadingPage> {
                         controller: comment,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          suffixIcon: InkWell(
+                          suffixIcon: adding?CircularProgressIndicator():InkWell(
                             onTap: () {
+                              adding=true;
                               addComment(comment.text, widget.modul.id,
                                   sharedPreferences.getInt("userId"));
                             },
-                            child: isLoading?Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xff0ABDB6).withOpacity(0.7),
-                    ),
-                  ):  Icon(Icons.send),
+                            child: isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xff0ABDB6).withOpacity(0.7),
+                                    ),
+                                  )
+                                : Icon(Icons.send),
                           ),
                         ),
                         maxLength: 500,
@@ -321,35 +269,53 @@ class _ReadingPageState extends State<ReadingPage> {
                         color: Colors.white,
                         child: SingleChildScrollView(
                           child: Column(
-                              // children: komen
-                              //     .map((e) => CommentWidget(komen: e))
-                              //     .toList()),
-                              children: komen
-                                  .map(
-                                    (e) => FutureBuilder<List<User>>(
-                                      future: getUser(),
-                                      builder: (context, snapshot) {
-                                        try {
-                                          var user = List.from(snapshot.data)
-                                              .firstWhere((element) =>
-                                                  element.id == e.user);
-                                          if (snapshot.hasData) {
-                                            return CommentWidget(
-                                              komen: e,
-                                              user: user,
-                                            );
-                                          }
-                                        } catch (e) {}
-                                        return Container();
-                                        // return Center(
-                                        //     child: CircularProgressIndicator(
-                                        //   color:
-                                        //       Color(0xff0ABDB6).withOpacity(0.7),
-                                        // ));
-                                      },
-                                    ),
-                                  )
-                                  .toList()),
+                            children: komen.map((e) => CommentWidget(
+                              komen: e,
+                              user: listUser.firstWhere((element) => element.id==e.user),
+                            )).toList(),
+                            // children: komen
+                            //     .map(
+                            //       (e) => FutureBuilder<List<User>>(
+                            //         future: getUser(),
+                            //         builder: (context, snapshot) {
+                            //           try {
+                            //             var user = List.from(snapshot.data)
+                            //                 .firstWhere((element) =>
+                            //                     element.id == e.user);
+                            //             if (snapshot.hasData) {
+                            //               return CommentWidget(
+                            //                 komen: e,
+                            //                 user: user,
+                            //               );
+                            //             }
+                            //           } catch (e) {}
+                            //           return Container();
+                            //         },
+                            //       ),
+                            //     )
+                            //     .toList(),
+                            // children: komen
+                            //     .map(
+                            //       (e) => FutureBuilder<List<User>>(
+                            //         future: futureGetUser(),
+                            //         builder: (context, snapshot) {
+                            //           try {
+                            //             var user = List.from(snapshot.data)
+                            //                 .firstWhere((element) =>
+                            //                     element.id == e.user);
+                            //             if (snapshot.hasData) {
+                            //               return CommentWidget(
+                            //                 komen: e,
+                            //                 user: user,
+                            //               );
+                            //             }
+                            //           } catch (e) {}
+                            //           return Container();
+                            //         },
+                            //       ),
+                            //     )
+                            //     .toList(),
+                          ),
                         ));
                   }
                   return Center(
@@ -387,7 +353,9 @@ class _ReadingPageState extends State<ReadingPage> {
             //   tfBookmark.clear();
             // },
             decoration: InputDecoration(
-              hintText: "1, 2, 3, ...",
+              hintText: widget.modul.jumlahHalaman == 1
+                  ? "1"
+                  : "1 sampai " + widget.modul.jumlahHalaman.toString(),
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xff0ABDB6), width: 2),
               ),
@@ -396,7 +364,12 @@ class _ReadingPageState extends State<ReadingPage> {
                     // color: Color(0xff0ABDB6),
                     color: Colors.black),
               ),
+              errorText: error == "" ? null : error,
+              errorStyle: TextStyle(
+                height: 2,
+              ),
             ),
+
             cursorColor: Color(0xff0ABDB6),
           ),
         ],
@@ -414,12 +387,31 @@ class _ReadingPageState extends State<ReadingPage> {
         ),
         TextButton(
           onPressed: () {
-            if (tfBookmark.text.isEmpty ||
-                int.parse(tfBookmark.text) > widget.modul.jumlahHalaman) {
-              return SnackBar(content: Text("Error"));
+            if (tfBookmark.text.isEmpty) {
+              setState(() {
+                error = "Masukkan nomor halaman";
+              });
+              Navigator.of(context).pop();
+              return showDialog(
+                context: context,
+                builder: (BuildContext context) => _buildPopupDialog(context),
+              );
+            } else if (int.parse(tfBookmark.text) >
+                widget.modul.jumlahHalaman) {
+              setState(() {
+                error = "Tidak dapat melebihi halaman " +
+                    widget.modul.jumlahHalaman.toString();
+              });
+              Navigator.of(context).pop();
+              return showDialog(
+                context: context,
+                builder: (BuildContext context) => _buildPopupDialog(context),
+              );
             }
+            error = "";
             addBookmark(int.parse(tfBookmark.text), widget.modul.id,
                 sharedPreferences.getInt("userId"));
+            Navigator.of(context).pop();
           },
           child: const Text(
             'Add',
@@ -432,6 +424,7 @@ class _ReadingPageState extends State<ReadingPage> {
 
   @override
   Widget build(BuildContext context) {
+    userFilled ? null : getUser();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -448,15 +441,6 @@ class _ReadingPageState extends State<ReadingPage> {
           ),
         ),
         actions: [
-          // TextButton(
-          //   onPressed: () {
-          //     // _pdfViewerController.searchText("succinctly");
-          //   },
-          //   child: Icon(
-          //     Icons.search,
-          //     color: Color(0xff0ABDB6),
-          //   ),
-          // ),
           TextButton(
             child: Stack(
               alignment: Alignment.center,
@@ -490,19 +474,9 @@ class _ReadingPageState extends State<ReadingPage> {
             child: SfPdfViewer.network(
               widget.modul.file,
               canShowPaginationDialog: true,
-              // onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
-              //   if (details.selectedText == null && _overlayEntry != null) {
-              //     _overlayEntry.remove();
-              //     _overlayEntry = null;
-              //   } else if (details.selectedText != null &&
-              //       _overlayEntry == null) {
-              //     _showContextMenu(context, details);
-              //   }
-              // },
               enableTextSelection: true,
               initialScrollOffset: Offset(0, 0),
               onDocumentLoaded: goto(),
-              // interactionMode: PdfInteractionMode.selection,
               searchTextHighlightColor: Colors.blue,
               controller: _pdfViewerController,
             ),

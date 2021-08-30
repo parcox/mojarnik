@@ -1,12 +1,15 @@
 // import 'dart:html';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_picker_gallery_camera/image_picker_gallery_camera.dart';
+import 'package:mojarnik/page/home.dart';
 import 'package:mojarnik/userClass/profilMahasiswa.dart';
 import 'package:mojarnik/userClass/user.dart';
 import 'package:mojarnik/widgets.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -28,12 +31,13 @@ class _SecondPageState extends State<SecondPage> {
   TextEditingController kelasController = TextEditingController();
   SharedPreferences sharedPreferences;
   bool isUpdating = false;
-  var _image;
+  PickedFile _image;
   bool isLoading = true;
   bool isStart = true;
   bool isStart2 = true;
   User user;
   Mahasiswa profil;
+  MultipartFile gambar;
   int _radioValue;
   void _handleRadio(int value) {
     setState(() {
@@ -72,7 +76,59 @@ class _SecondPageState extends State<SecondPage> {
         ));
     setState(() {
       _image = image;
+      print(_image.runtimeType);
     });
+    try {
+      String token = sharedPreferences.getString("token");
+      Dio dioo = Dio();
+      dioo.options.headers['content-Type'] = 'multipart/form-data;';
+      dioo.options.headers["Authorization"] = "token $token";
+      FormData formData = new FormData.fromMap(
+          // {"foto": await http.MultipartFile.fromPath("foto", _image.path)});
+          {"foto": await MultipartFile.fromFile(_image.path)});
+      var response = await dioo.patch(
+        "http://mojarnik.online/api/accounts/customuser/" +
+            user.id.toString() +
+            "/",
+        data: formData,
+      );
+      print(response.statusCode);
+      print(response.data);
+      if (response.statusCode == 200) {
+        print("sukses update foto");
+        var jsonData = response.data;
+        sharedPreferences.setString("foto", jsonData["foto"]);
+        return Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                      page: 2,
+                    )),
+            (Route<dynamic> route) => false);
+      } else {
+        print(response.data);
+      }
+      // http.Response response;
+      // FormData formData = FormData.fromMap({
+      //   "foto": await http.MultipartFile.fromPath("foto", _image.path),
+      // });
+      // String token = sharedPreferences.getString("token");
+      // Map<String, String> headers = {'Authorization': 'token ' + token};
+      // response = await http.patch(
+      //   Uri.parse(
+      //     "http://mojarnik.online/api/accounts/customuser/" +
+      //         user.id.toString() +
+      //         "/",
+      //   ),
+      //   body: formData,
+      //   headers: headers,
+      // );
+      // if (response.statusCode == 200) {
+      //   print("Sukses ganti foto profil");
+      // }
+    } catch (e) {
+      print("gagal update foto");
+      print(e);
+    }
   }
 
   initPreference() async {
@@ -84,9 +140,8 @@ class _SecondPageState extends State<SecondPage> {
     http.Response response;
     try {
       response = await http.get(
-          Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
-                  sharedPreferences.getInt("userId").toString()),
+          Uri.parse("http://mojarnik.online/api/accounts/customuser/" +
+              sharedPreferences.getInt("userId").toString()),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -98,7 +153,7 @@ class _SecondPageState extends State<SecondPage> {
         try {
           response = await http.get(
               Uri.parse(
-                  "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
+                  "http://mojarnik.online/api/accounts/profilmahasiswa/?user=" +
                       sharedPreferences.getInt("userId").toString()),
               headers: {
                 'Content-type': 'application/json',
@@ -161,14 +216,13 @@ class _SecondPageState extends State<SecondPage> {
 
   ubahProfil(String firstName, String lastName, int gender, String noHp,
       String kelas) async {
-    String url1 =
-        "http://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/" +
-            profil.id.toString() +
-            "/";
-    String url2 =
-        "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
-            user.id.toString() +
-            "/";
+    String url1 = "http://mojarnik.online/api/accounts/profilmahasiswa/" +
+        profil.id.toString() +
+        "/";
+    String url2 = "http://mojarnik.online/api/accounts/customuser/" +
+        user.id.toString() +
+        "/";
+
     String token = sharedPreferences.getString("token");
     Map<String, String> headers = {'Authorization': 'token ' + token};
     http.Response response;
@@ -191,6 +245,9 @@ class _SecondPageState extends State<SecondPage> {
                 "last_name": lastName,
                 "gender": gender.toString(),
                 "no_hp": noHp,
+                // _image != null
+                //     ? "foto"
+                //     : http.MultipartFile.fromPath("foto", _image.path): null,
                 // "kelas": kelas,
               },
               headers: headers);
@@ -200,6 +257,7 @@ class _SecondPageState extends State<SecondPage> {
             final jsonDataa = jsonDecode(jsonDataString);
             sharedPreferences.setString("user_name",
                 jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
+            sharedPreferences.setString("foto", jsonDataa["foto"]);
             print("Sukses update user");
             setState(() {
               if (isUpdating) {
@@ -207,10 +265,21 @@ class _SecondPageState extends State<SecondPage> {
                 widget.isEdit = false;
               }
             });
+            return Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => HomePage(
+                          page: 2,
+                        )),
+                (Route<dynamic> route) => false);
+          } else {
+            print(response.body);
           }
         } catch (e) {
           print("Gagal update user");
           print(e);
+          setState(() {
+            isUpdating = false;
+          });
         }
       }
     } catch (e) {
@@ -229,82 +298,47 @@ class _SecondPageState extends State<SecondPage> {
             child: Stack(
               children: [
                 Container(
-                  clipBehavior: Clip.antiAlias,
-                  height: 150,
-                  width: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  // child: _image != null
-                  //     ? Image.file(
-                  //         File(_image.path),
-                  //         fit: BoxFit.cover,
-                  //       )
-                  //     : Image(
-                  //         image: AssetImage("asset/markZuck.png"),
-                  //         fit: BoxFit.cover,
-                  //       ),
-                  child: Image(
-                    image: tampilkanImage2(),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                    clipBehavior: Clip.antiAlias,
+                    height: 150,
+                    width: 150,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: tampilkanImage2()),
                 Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: widget.isEdit
-                      ? InkWell(
-                          onTap: () {
-                            getImage(ImgSource.Both);
-                          },
-                          child: Container(
-                            width: 45,
-                            height: 45,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xff0ABDB6)),
-                            child: Icon(
-                              Icons.photo_camera_outlined,
-                              color: Colors.white,
-                              size: 25,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                ),
+                    bottom: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: () {
+                        getImage(ImgSource.Both);
+                      },
+                      child: Container(
+                        width: 45,
+                        height: 45,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: Color(0xff0ABDB6)),
+                        child: Icon(
+                          Icons.photo_camera_outlined,
+                          color: Colors.white,
+                          size: 25,
+                        ),
+                      ),
+                    )),
               ],
             ),
           ),
         ),
         Container(
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          // color: Colors.red,
           child: Column(
             children: [
-              // SettingsItem(
-              //   title: "Name",
-              //   // content: sharedPreferences
-              //   //     .getString("user_name")
-              //   //     .capitalizeFirstofEach,
-              //   content:
-              //       (user.username + " " + user.lastName).capitalizeFirstofEach,
-              //   isEditable: widget.isEdit,
-              //   controller: nameController,
-              // ),
               Container(
-                // height: 150,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                         padding: const EdgeInsets.only(top: 10),
-                        // child: Text(
-                        //   widget.isEdit?"Nama Depan & Nama Belakang":"Nama",
-                        //   style: TextStyle(
-                        //     color: Color(0xff939393),
-                        //     fontSize: 18,
-                        //   ),
                         child: widget.isEdit
                             ? Row(
                                 children: [
@@ -386,45 +420,17 @@ class _SecondPageState extends State<SecondPage> {
               SettingsItem(
                 title: "Nomor Telepon",
                 content: user.noHp,
-                // content: sharedPreferences.getString("noHp"),
                 isEditable: widget.isEdit,
                 controller: hpController,
               ),
               SettingsItem(
                 title: "Kelas",
                 content: profil.kelas,
-                // content: sharedPreferences.getString("noHp"),
                 isEditable: widget.isEdit,
                 controller: kelasController,
               ),
             ],
           ),
-          // child: Column(
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   children: [
-          //     Padding(
-          //       padding: const EdgeInsets.only(top: 10),
-          //       child: Text(
-          //         "Name",
-          //         style: TextStyle(
-          //           color: Color(0xff939393),
-          //           fontSize: 18,
-          //         ),
-          //       ),
-          //     ),
-          //     Row(
-          //       children: [
-          //         Expanded(
-          //           child: Text(
-          //             sharedPreferences?.getString("name") ?? "",
-          //             style: TextStyle(fontSize: 20),
-          //           ),
-          //         ),
-          //         Icon(Icons.edit),
-          //       ],
-          //     )
-          //   ],
-          // ),
         ),
         widget.isEdit
             ? Padding(
@@ -438,16 +444,50 @@ class _SecondPageState extends State<SecondPage> {
                     child: Text("Save"),
                   ),
                   onPressed: () {
-                    setState(() {
-                      isStart = true;
-                      isUpdating = true;
-                    });
-                    ubahProfil(
-                        firstNameController.text,
-                        lastNameController.text,
-                        _radioValue,
-                        hpController.text,
-                        kelasController.text);
+                    if (firstNameController.text == "" ||
+                        lastNameController.text == "" ||
+                        hpController.text == "" ||
+                        kelasController.text == "") {
+                      return NAlertDialog(
+                        dialogStyle: DialogStyle(backgroundColor: Colors.white),
+                        title: Text(
+                          "Peringatan",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color(0xff0ABDB6),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        content: Text(
+                          "Field tidak boleh kosong!",
+                          style: TextStyle(color: Color(0xff0ABDB6)),
+                        ),
+                        actions: [
+                          TextButton(
+                            child: Text(
+                              "Close",
+                              style: TextStyle(
+                                color: Color(0xff0ABDB6),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      ).show(context);
+                    } else {
+                      setState(() {
+                        isStart = true;
+                        isUpdating = true;
+                      });
+                      ubahProfil(
+                          firstNameController.text,
+                          lastNameController.text,
+                          _radioValue,
+                          hpController.text,
+                          kelasController.text);
+                    }
                   },
                 ),
               )
@@ -473,19 +513,6 @@ class _SecondPageState extends State<SecondPage> {
             child: Center(
               child: CircularProgressIndicator(color: Colors.white),
             ),
-            // child: _image != null
-            //     ? Image.file(
-            //         File(_image.path),
-            //         fit: BoxFit.cover,
-            //       )
-            //     : Image(
-            //         image: AssetImage("asset/markZuck.png"),
-            //         fit: BoxFit.cover,
-            //       ),
-            // child: Image(
-            //   image: tampilkanImage2(),
-            //   fit: BoxFit.cover,
-            // ),
           ),
         ),
         Expanded(
@@ -493,113 +520,8 @@ class _SecondPageState extends State<SecondPage> {
             color: Colors.grey.withOpacity(0.3),
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             padding: EdgeInsets.all(10),
-            // child: Center(
-            //   child: CircularProgressIndicator(color: Colors.white),
-            // ),
-
-            // // color: Colors.red,
-            // child: Column(
-            //   children: [
-            //     SettingsItem(
-            //       title: "Name",
-            //       // content: sharedPreferences
-            //       //     .getString("user_name")
-            //       //     .capitalizeFirstofEach,
-            //       content:
-            //           (user.username + " " + user.lastName).capitalizeFirstofEach,
-            //       isEditable: widget.isEdit,
-            //       controller: nameController,
-            //     ),
-            //     SettingsItem(
-            //       title: "NIM",
-            //       content: profil.nim,
-            //       isEditable: false,
-            //     ),
-            //     Container(
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Padding(
-            //             padding: const EdgeInsets.only(top: 10),
-            //             child: Text(
-            //               "Jenis Kelamin",
-            //               style: TextStyle(
-            //                 color: Color(0xff939393),
-            //                 fontSize: 18,
-            //               ),
-            //             ),
-            //           ),
-            //           Row(
-            //             children: [
-            //               Expanded(
-            //                 child: widget.isEdit
-            //                     ? buildRadio()
-            //                     : Text(
-            //                         user.gender == 1 ? "Laki-laki" : "Perempuan",
-            //                         style: TextStyle(fontSize: 20),
-            //                       ),
-            //               ),
-            //             ],
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //     SettingsItem(
-            //       title: "Phone Number",
-            //       content: user.noHp,
-            //       // content: sharedPreferences.getString("noHp"),
-            //       isEditable: widget.isEdit,
-            //       controller: hpController,
-            //     ),
-            //   ],
-            // ),
-            // // child: Column(
-            // //   crossAxisAlignment: CrossAxisAlignment.start,
-            // //   children: [
-            // //     Padding(
-            // //       padding: const EdgeInsets.only(top: 10),
-            // //       child: Text(
-            // //         "Name",
-            // //         style: TextStyle(
-            // //           color: Color(0xff939393),
-            // //           fontSize: 18,
-            // //         ),
-            // //       ),
-            // //     ),
-            // //     Row(
-            // //       children: [
-            // //         Expanded(
-            // //           child: Text(
-            // //             sharedPreferences?.getString("name") ?? "",
-            // //             style: TextStyle(fontSize: 20),
-            // //           ),
-            // //         ),
-            // //         Icon(Icons.edit),
-            // //       ],
-            // //     )
-            // //   ],
-            // // ),
           ),
         ),
-        // widget.isEdit
-        //     ? Padding(
-        //         padding: const EdgeInsets.only(top: 20),
-        //         child: ElevatedButton(
-        //           style: ButtonStyle(
-        //               backgroundColor:
-        //                   MaterialStateProperty.all(Color(0xff0ABDB6))),
-        //           child: Padding(
-        //             padding: const EdgeInsets.all(20),
-        //             child: Text("Save"),
-        //           ),
-        //           onPressed: () {
-        //             setState(() {
-        //               isStart = true;
-        //             });
-        //           },
-        //         ),
-        //       )
-        //     : Container(),
       ],
     );
   }
@@ -620,7 +542,8 @@ class _SecondPageState extends State<SecondPage> {
                 "Laki-laki",
                 style: TextStyle(
                   color: Color(0xff0ABDB6),
-                  fontWeight: _radioValue==1? FontWeight.bold:FontWeight.w400,
+                  fontWeight:
+                      _radioValue == 1 ? FontWeight.bold : FontWeight.w400,
                 ),
               ),
             ],
@@ -639,7 +562,8 @@ class _SecondPageState extends State<SecondPage> {
                 "Perempuan",
                 style: TextStyle(
                   color: Color(0xff0ABDB6),
-                  fontWeight: _radioValue==2? FontWeight.bold:FontWeight.w400,
+                  fontWeight:
+                      _radioValue == 2 ? FontWeight.bold : FontWeight.w400,
                 ),
               ),
             ],
@@ -649,8 +573,19 @@ class _SecondPageState extends State<SecondPage> {
     );
   }
 
-  AssetImage tampilkanImage2() {
-    return AssetImage("asset/markZuck.png");
+  tampilkanImage2() {
+    if (_image == null) {
+      return Image(
+        image: sharedPreferences.getString("foto") == null
+            ? AssetImage("asset/markZuck.png")
+            : NetworkImage(sharedPreferences.getString("foto")),
+        fit: BoxFit.cover,
+      );
+    }
+    return Image.file(
+      File(_image.path),
+      fit: BoxFit.cover,
+    );
   }
 
   NetworkImage tampilkanImage1() {
@@ -660,6 +595,17 @@ class _SecondPageState extends State<SecondPage> {
       );
     } catch (e) {
       tampilkanImage2();
+    }
+  }
+
+  checkConnection() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+      }
+    } on SocketException catch (_) {
+      print('not connected');
     }
   }
 
@@ -673,13 +619,7 @@ class _SecondPageState extends State<SecondPage> {
     isStart ? getData() : null;
     // getMahasiswa();
     return isLoading
-        ?
-        // Center(
-        //     child: CircularProgressIndicator(
-        //       color: Color(0xff0ABDB6),
-        //     ),
-        //   )
-        buildPageBeforeLoading()
+        ? buildPageBeforeLoading()
         : Stack(
             children: [
               buildPageAfterLoading(),

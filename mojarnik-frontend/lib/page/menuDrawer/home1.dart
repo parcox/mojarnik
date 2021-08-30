@@ -7,6 +7,7 @@ import 'package:mojarnik/instansi/jurusan.dart';
 import 'package:mojarnik/instansi/makul.dart';
 import 'package:mojarnik/instansi/prodi.dart';
 import 'package:mojarnik/moduleClass/module.dart';
+import 'package:mojarnik/page/home.dart';
 import 'package:mojarnik/userClass/profilMahasiswa.dart';
 import 'package:mojarnik/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,7 +68,7 @@ class _FirstPageState extends State<FirstPage> {
     http.Response response;
     try {
       response = await http.get(
-          Uri.parse("https://mojarnik-server.herokuapp.com/api/emodul/emodul/"),
+          Uri.parse("http://mojarnik.online/api/emodul/emodul/"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -93,7 +94,7 @@ class _FirstPageState extends State<FirstPage> {
       http.Response response;
       response = await http.get(
           Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
+              "http://mojarnik.online/api/accounts/profilmahasiswa/?user=" +
                   sharedPreferences.getInt("userId").toString()),
           headers: {
             'Content-type': 'application/json',
@@ -107,7 +108,7 @@ class _FirstPageState extends State<FirstPage> {
           http.Response response;
           response = await http.get(
               Uri.parse(
-                  "https://mojarnik-server.herokuapp.com/api/akademik/programstudi/"),
+                  "http://mojarnik.online/api/akademik/programstudi/"),
               headers: {
                 'Content-type': 'application/json',
                 'Accept': 'application/json',
@@ -123,7 +124,7 @@ class _FirstPageState extends State<FirstPage> {
               http.Response response;
               response = await http.get(
                   Uri.parse(
-                      "https://mojarnik-server.herokuapp.com/api/akademik/jurusan/"),
+                      "http://mojarnik.online/api/akademik/jurusan/"),
                   headers: {
                     'Content-type': 'application/json',
                     'Accept': 'application/json',
@@ -140,7 +141,7 @@ class _FirstPageState extends State<FirstPage> {
                   http.Response response;
                   response = await http.get(
                       Uri.parse(
-                          "https://mojarnik-server.herokuapp.com/api/akademik/matakuliah/"),
+                          "http://mojarnik.online/api/akademik/matakuliah/"),
                       headers: {
                         'Content-type': 'application/json',
                         'Accept': 'application/json',
@@ -176,6 +177,7 @@ class _FirstPageState extends State<FirstPage> {
       }
     } catch (e) {
       print("Gagal get mahasiswa");
+      
       print(e);
     }
   }

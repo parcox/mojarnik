@@ -8,38 +8,24 @@ import 'package:mojarnik/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ModuleDetails extends StatefulWidget {
-  // final String date;
-  // final String title;
-  // final int jumlahFile;
   final Modules modul;
   final MataKuliah makul;
   const ModuleDetails({
     Key key,
     this.modul,
     this.makul,
-    // this.date,
-    // this.title,
-    // this.jumlahFile
   }) : super(key: key);
   @override
   _ModuleDetailsState createState() => _ModuleDetailsState();
 }
 
 class _ModuleDetailsState extends State<ModuleDetails> {
-  // List<Map<String, dynamic>> listMakul = [
-  //   {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
-  //   {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
-  //   {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
-  //   {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
-  // ];
   SharedPreferences sharedPreferences;
   Future<List<ModuleDetail>> getModuleDetail() async {
     http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
     response = await http.get(
         Uri.parse(
-            "https://mojarnik-server.herokuapp.com/api/emodul/emoduldetail/"),
+            "http://mojarnik.online/api/emodul/emoduldetail/"),
         headers: {
           'Content-type': 'application/json',
           'Accept': 'application/json',
@@ -112,11 +98,9 @@ class _ModuleDetailsState extends State<ModuleDetails> {
                           maxLines: 2,
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
-                          // "Nama Makul",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
-                            // fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
@@ -165,24 +149,6 @@ class _ModuleDetailsState extends State<ModuleDetails> {
               return Center(child: CircularProgressIndicator());
             },
           ),
-          // child: GridView.count(
-          //   padding: EdgeInsets.symmetric(horizontal: 2),
-          //   crossAxisSpacing: 5,
-          //   mainAxisSpacing: 5,
-          //   crossAxisCount: 2,
-          //   children: [
-          //     ModuleFiles(
-          //       title: "Cover",
-          //       jumlahPage: 1,
-          //       page: 1,
-          //     ),
-          //     ModuleFiles(
-          //       title: "BAB I",
-          //       jumlahPage: 5,
-          //       page: 1,
-          //     ),
-          //   ],
-          // ),
         ),
       ),
     );

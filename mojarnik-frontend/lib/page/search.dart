@@ -13,12 +13,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  // List<Map<String, dynamic>> listMakul = [
-  //   {"id": 1, "name": "Komputer Animasi", "gambar": "asset/binary.jpg"},
-  //   {"id": 2, "name": "Pengolahan Citra Digital", "gambar": "asset/binary.jpg"},
-  //   {"id": 3, "name": "Kewarganegaraan", "gambar": "asset/binary.jpg"},
-  //   {"id": 4, "name": "Sistem Keamanan Informasi", "gambar": "asset/binary.jpg"}
-  // ];
   FocusNode fcSearch;
   SharedPreferences sharedPreferences;
   TextEditingController searchController = TextEditingController();
@@ -28,10 +22,8 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<List<Modules>> getModules() async {
     http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
     response = await http.get(
-        Uri.parse("https://mojarnik-server.herokuapp.com/api/emodul/emodul/"),
+        Uri.parse("http://mojarnik.online/api/emodul/emodul/"),
         headers: {
           'Content-type': 'application/json',
           'Accept': 'application/json',
@@ -50,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
       http.Response response;
       response = await http.get(
           Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/akademik/jurusan/"),
+              "http://mojarnik.online/api/akademik/jurusan/"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -71,7 +63,7 @@ class _SearchPageState extends State<SearchPage> {
           http.Response response;
           response = await http.get(
               Uri.parse(
-                  "https://mojarnik-server.herokuapp.com/api/akademik/matakuliah/"),
+                  "http://mojarnik.online/api/akademik/matakuliah/"),
               headers: {
                 'Content-type': 'application/json',
                 'Accept': 'application/json',
@@ -190,9 +182,13 @@ class _SearchPageState extends State<SearchPage> {
                         var modul = snapshot.data.where((x) =>
                             x.judul.toLowerCase().contains(
                                 searchController.text.toLowerCase()) ||
-                            (makul.where(
-                                    (element) => element.id == x.mataKuliah))
+                            // (makul.where(
+                            //         (element) => element.id == x.mataKuliah))
+                            //     .contains(searchController.text.toLowerCase()));
+                            (makul.firstWhere(
+                                    (m) => m.id == x.mataKuliah)).nama.toLowerCase()
                                 .contains(searchController.text.toLowerCase()));
+
                         return Column(
                             children: modul
                                 .map((e) => SearchWidget(

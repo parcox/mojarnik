@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mojarnik/main.dart';
+import 'package:mojarnik/page/launcher.dart';
+import 'package:mojarnik/page/testUploadImage.dart';
 import 'package:mojarnik/tes.dart';
 import 'package:mojarnik/widgets.dart';
 import 'package:ndialog/ndialog.dart';
@@ -16,8 +18,10 @@ class HomePage extends StatefulWidget {
   // final int prodi;
   // final String semester;
   // final String kelas;
-  const HomePage({
+  int page;
+  HomePage({
     Key key,
+    this.page
     //  this.prodi, this.semester, this.kelas
   }) : super(key: key);
   @override
@@ -25,10 +29,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List _gender = ["Perempuan", "Laki-laki"];
+  // List _gender = ["Perempuan", "Laki-laki"];
   SharedPreferences sharedPreferences;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  int page = 0;
   bool settingMode = false;
   bool edit = false;
   String helpContent = """ 
@@ -38,26 +41,7 @@ class _HomePageState extends State<HomePage> {
   """;
 
   List mapResponse;
-  // getUser() async {
-  //   var jsonData = null;
-  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   http.Response response;
-  //   try {
-  //     if (response.statusCode == 200) {
-  //       jsonData = response.body;
-  //       String jsonDataString = jsonData.toString();
-  //       final jsonDataa = jsonDecode(jsonDataString);
-  //       sharedPreferences.setString("user_name",
-  //           jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
-  //       // sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
-  //       // sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
-  //       setState(() {});
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
+
 
   initPreference() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -72,7 +56,6 @@ class _HomePageState extends State<HomePage> {
         TextButton(
           onPressed: () {
             sharedPreferences.clear();
-            sharedPreferences.commit();
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => LoginPage()),
                 (Route<dynamic> route) => false);
@@ -128,28 +111,22 @@ class _HomePageState extends State<HomePage> {
     //     return AssetImage("asset/markZuck.png");
     //   }
     // }
-    // try {
-    //   return Container(
-    //     height: 80,
-    //     width: 80,
-    //     decoration: BoxDecoration(
-    //       border: Border.all(),
-    //       shape: BoxShape.circle,
-    //       image: DecorationImage(
-    //         fit: BoxFit.cover,
-    //         // image: sharedPreferences.getString("foto") == null
-    //         //     ? AssetImage("asset/markZuck.png")
-    //         //     // NetworkImage("https://www.publicdomainpictures.net/pictures/320000/velka/background-image.png")
-    //         //     : NetworkImage(
-    //         //         sharedPreferences.getString("foto"),
-    //         //       ),
-    //         image: NetworkImage(
-    //           sharedPreferences.getString("foto"),
-    //         ),
-    //       ),
-    //     ),
-    //   );
-    // } catch (e) {
+    try {
+      return Container(
+        height: 80,
+        width: 80,
+        decoration: BoxDecoration(
+          border: Border.all(),
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: NetworkImage(
+              sharedPreferences.getString("foto"),
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
       return Container(
         height: 80,
         width: 80,
@@ -162,7 +139,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
-    // }
+    }
   }
 
   @override
@@ -173,7 +150,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget build(BuildContext context) {
-    setState(() {});
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -240,19 +216,24 @@ class _HomePageState extends State<HomePage> {
                               style: TextStyle(color: Color(0xff0ABDB6)),
                             ),
                           ),
-                          // TextButton(
-                          //   onPressed: () {
-                          //     Navigator.of(context).push(
-                          //       MaterialPageRoute(
-                          //         builder: (BuildContext context) => HalamanTes(),
-                          //       ),
-                          //     );
-                          //   },
-                          //   child: Text(
-                          //     "Tes",
-                          //     style: TextStyle(color: Color(0xff0ABDB6)),
-                          //   ),
-                          // ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>LauncherPage()));
+                            },
+                            child: Text(
+                              "Launcher",
+                              style: TextStyle(color: Color(0xff0ABDB6)),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>PostImage()));
+                            },
+                            child: Text(
+                              "TestUpload",
+                              style: TextStyle(color: Color(0xff0ABDB6)),
+                            ),
+                          ),
                         ],
                       ).show(context);
                     },
@@ -311,45 +292,6 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(
                   height: 10,
                 ),
-                // FutureBuilder<List<User>>(
-                //   future: getUser(),
-                //   builder: (context, snapshot) {
-                //     if (snapshot.hasData) {
-                //       var usser = List.from(snapshot.data);
-                //       return Container(
-                //         height: 500,
-                //         width: MediaQuery.of(context).size.width,
-                //         child: Column(
-                //           children: [
-                //             Text(
-                //               usser[0].firstName + " " + usser[0].lastName,
-                //             ),
-                //             SizedBox(
-                //               height: 5,
-                //             ),
-                //             Text(
-                //               "3201816114",
-                //               style: TextStyle(
-                //                   fontSize: 17,
-                //                   color: Color(0xff818181),
-                //                   fontWeight: FontWeight.w400),
-                //             ),
-                //             Divider(
-                //               color: Colors.black.withOpacity(0.5),
-                //             ),
-                //           ],
-                //           // children: usser
-                //           //     .map((e) => Text(
-                //           //           e.firstName + " " + e.lastName,
-                //           //         ))
-                //           //     .toList()),
-                //         ),
-                //       );
-                //     }
-
-                //     return Container();
-                //   },
-                // ),
                 Text(
                   sharedPreferences.getString("user_name") != null
                       ? sharedPreferences
@@ -365,7 +307,10 @@ class _HomePageState extends State<HomePage> {
                   height: 5,
                 ),
                 Text(
-                  "3201816114",
+                  sharedPreferences.getString("nim") != null
+                      ? sharedPreferences
+                          .getString("nim")
+                      : "NIM",
                   style: TextStyle(
                       fontSize: 17,
                       color: Color(0xff818181),
@@ -378,7 +323,7 @@ class _HomePageState extends State<HomePage> {
                   title: "Home",
                   onPressed: () {
                     setState(() {
-                      page = 0;
+                      widget.page = 0;
                       settingMode = false;
                     });
                     Navigator.pop(context);
@@ -388,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                   title: "Bookmarks",
                   onPressed: () {
                     setState(() {
-                      page = 1;
+                      widget.page = 1;
                       settingMode = false;
                     });
                     Navigator.pop(context);
@@ -398,7 +343,7 @@ class _HomePageState extends State<HomePage> {
                   title: "Settings",
                   onPressed: () {
                     setState(() {
-                      page = 2;
+                      widget.page = 2;
                       settingMode = true;
                     });
                     Navigator.pop(context);
@@ -408,7 +353,7 @@ class _HomePageState extends State<HomePage> {
                   title: "About",
                   onPressed: () {
                     setState(() {
-                      page = 3;
+                      widget.page = 3;
                       settingMode = false;
                     });
                     Navigator.pop(context);
@@ -445,10 +390,11 @@ class _HomePageState extends State<HomePage> {
               ),
           FourthPage(),
           SecondPage(
+            key: widget.key,
             isEdit: edit,
           ),
           ThirdPage(),
-        ][page],
+        ][widget.page],
       ),
     );
     // );

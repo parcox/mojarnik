@@ -727,12 +727,14 @@ class CommentWidget extends StatelessWidget {
             Container(
                 height: 30,
                 width: 30,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   // color: Colors.grey,
                 ),
                 child: Image(
-                  image: AssetImage("asset/markZuck.png"),
+                  image: NetworkImage(user.foto,),
+                  fit: BoxFit.cover,
                 )),
             SizedBox(
               width: 10,

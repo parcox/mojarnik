@@ -25,11 +25,9 @@ class _FourthPageState extends State<FourthPage> {
   bool done = false;
   Future<ModuleDetail> getModuleDetail() async {
     http.Response response;
-    // Uri url = 'http://students.ti.elektro.polnep.ac.id:8000/api/emodul/emodul/'
-    //     as Uri;
     response = await http.get(
         Uri.parse(
-            "https://mojarnik-server.herokuapp.com/api/emodul/emoduldetail/"),
+            "http://mojarnik.online/api/emodul/emoduldetail/"),
         headers: {
           'Content-type': 'application/json',
           'Accept': 'application/json',
@@ -49,7 +47,7 @@ class _FourthPageState extends State<FourthPage> {
     //     as Uri;
     response = await http.get(
         Uri.parse(
-            "https://mojarnik-server.herokuapp.com/api/emodul/emoduldetail/"),
+            "http://mojarnik.online/api/emodul/emoduldetail/"),
         headers: {
           'Content-type': 'application/json',
           'Accept': 'application/json',
@@ -67,7 +65,7 @@ class _FourthPageState extends State<FourthPage> {
     try {
       response = await http.get(
           Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/emodul/emodulbookmark/"),
+              "http://mojarnik.online/api/emodul/emodulbookmark/"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -89,7 +87,7 @@ class _FourthPageState extends State<FourthPage> {
       http.Response response;
       response = await http.get(
           Uri.parse(
-              "https://mojarnik-server.herokuapp.com/api/akademik/programstudi/"),
+              "http://mojarnik.online/api/akademik/programstudi/"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -105,7 +103,7 @@ class _FourthPageState extends State<FourthPage> {
           http.Response response;
           response = await http.get(
               Uri.parse(
-                  "https://mojarnik-server.herokuapp.com/api/akademik/jurusan/"),
+                  "http://mojarnik.online/api/akademik/jurusan/"),
               headers: {
                 'Content-type': 'application/json',
                 'Accept': 'application/json',
@@ -121,7 +119,7 @@ class _FourthPageState extends State<FourthPage> {
               http.Response response;
               response = await http.get(
                   Uri.parse(
-                      "https://mojarnik-server.herokuapp.com/api/akademik/matakuliah/"),
+                      "http://mojarnik.online/api/akademik/matakuliah/"),
                   headers: {
                     'Content-type': 'application/json',
                     'Accept': 'application/json',
@@ -137,7 +135,7 @@ class _FourthPageState extends State<FourthPage> {
                 try {
                   response = await http.get(
                       Uri.parse(
-                          "https://mojarnik-server.herokuapp.com/api/emodul/emodul/"),
+                          "http://mojarnik.online/api/emodul/emodul/"),
                       headers: {
                         'Content-type': 'application/json',
                         'Accept': 'application/json',
@@ -184,34 +182,6 @@ class _FourthPageState extends State<FourthPage> {
   Widget build(BuildContext context) {
     done == false ? getData() : null;
     return Scaffold(
-      // body: FutureBuilder<List<Bookmarks>>(
-      //   future: getBookmark(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       var bookmarks = List.from(snapshot.data).where((element) =>
-      //           element.user == sharedPreferences.getInt("userId"));
-      //       return ListView(
-      //           children: bookmarks
-      //               .map((e) => FutureBuilder<List<ModuleDetail>>(
-      //                     future: getModuleDetails(),
-      //                     builder: (context, snapshot) {
-      //                       if (snapshot.hasData) {
-      //                         var modul = List.from(snapshot.data).firstWhere(
-      //                             (element) => element.id == e.dokumen);
-      //                         return BookmarksWidget(
-      //                           bookmark: e,
-      //                           moduleDetail: modul,
-      //                         );
-      //                       }
-      //                       return Container();
-      //                     },
-      //                   ))
-      //               .toList());
-      //     }
-
-      //     return Center(child: CircularProgressIndicator());
-      //   },
-      // ),
       body: done == false
           ? Center(
               child: CircularProgressIndicator(

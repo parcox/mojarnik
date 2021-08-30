@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mojarnik/page/home.dart';
+import 'package:mojarnik/page/launcher.dart';
 import 'package:ndialog/ndialog.dart';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +20,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(title: 'Mojarnik'),
+      // home: LoginPage(title: 'Mojarnik'),
+      home: LauncherPage(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -44,39 +47,72 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController tfUsername = TextEditingController();
   TextEditingController tfPassword = TextEditingController();
   bool _isLoading = false;
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-  }
+
+  // checkConnection() async {
+  //   try {
+  //     final result = await InternetAddress.lookup('example.com');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       print('connected');
+  //     }
+  //   } on SocketException catch (_) {
+  //     print('not connected');
+  //   }
+  // }
 
   List mapResponse;
-  // getUser() async {
-  //   var jsonData = null;
+  // secondLogin() async {
   //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   //   http.Response response;
   //   try {
   //     response = await http.get(
-  //         Uri.parse(
-  //             "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
-  //                 sharedPreferences.getInt("userId").toString()),
+  //         Uri.parse("http://mojarnik.online/api/accounts/customuser/" +
+  //             sharedPreferences.getInt("userId").toString()),
   //         headers: {
   //           'Content-type': 'application/json',
   //           'Accept': 'application/json',
   //           'Authorization': 'token ' + sharedPreferences.getString("token")
   //         });
   //     if (response.statusCode == 200) {
-  //       jsonData = response.body;
+  //       var jsonData = response.body;
   //       String jsonDataString = jsonData.toString();
   //       final jsonDataa = jsonDecode(jsonDataString);
   //       sharedPreferences.setString("user_name",
   //           jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
-  //       sharedPreferences.setString("gender", _gender[jsonDataa["gender"]]);
-  //       sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
+  //       sharedPreferences.setString("foto", jsonDataa["foto"]);
+  //       try {
+  //         response = await http.get(
+  //             Uri.parse(
+  //                 "http://mojarnik.online/api/accounts/profilmahasiswa/?user=" +
+  //                     sharedPreferences.getInt("userId").toString()),
+  //             headers: {
+  //               'Content-type': 'application/json',
+  //               'Accept': 'application/json',
+  //               'Authorization': 'token ' + sharedPreferences.getString("token")
+  //             });
+  //         if (response.statusCode == 200) {
+  //           var jsonData = response.body;
+  //           String jsonDataString = jsonData.toString();
+  //           final jsonDataa = jsonDecode(jsonDataString);
+  //           sharedPreferences.setString("nim", jsonDataa[0]["nim"]);
+  //           return Navigator.of(context).pushAndRemoveUntil(
+  //               MaterialPageRoute(
+  //                   builder: (context) => HomePage(
+  //                         page: 0,
+  //                       )),
+  //               (Route<dynamic> route) => false);
+  //         }
+  //       } catch (e) {
+  //         print("Gagal get profilUser");
+  //         print(e);
+  //       }
+  //       // return Navigator.of(context).pushAndRemoveUntil(
+  //       //     MaterialPageRoute(builder: (context) => HomePage()),
+  //       //     (Route<dynamic> route) => false);
   //     }
   //   } catch (e) {
+  //     print("Gagal get customUser");
   //     print(e);
   //   }
-  //   return null;
   // }
 
   logIn(String username, String password) async {
@@ -115,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
     http.Response response;
     try {
       response = await http.post(
-          Uri.parse("https://mojarnik-server.herokuapp.com/api/token-auth/"),
+          Uri.parse("http://mojarnik.online/api/token-auth/"),
           body: {"username": username, "password": password});
       if (response.statusCode == 200) {
         jsonData = response.body;
@@ -125,9 +161,8 @@ class _LoginPageState extends State<LoginPage> {
         sharedPreferences.setInt("userId", jsonDataa["user_id"]);
         try {
           response = await http.get(
-              Uri.parse(
-                  "https://mojarnik-server.herokuapp.com/api/accounts/customuser/" +
-                      sharedPreferences.getInt("userId").toString()),
+              Uri.parse("http://mojarnik.online/api/accounts/customuser/" +
+                  sharedPreferences.getInt("userId").toString()),
               headers: {
                 'Content-type': 'application/json',
                 'Accept': 'application/json',
@@ -140,40 +175,33 @@ class _LoginPageState extends State<LoginPage> {
             sharedPreferences.setString("user_name",
                 jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
             sharedPreferences.setString("foto", jsonDataa["foto"]);
-            // sharedPreferences.setString("gender", jsonDataa["gender"]);
-            // sharedPreferences.setString("noHp", jsonDataa["no_hp"]);
-            // try {
-            //   response = await http.get(
-            //       Uri.parse(
-            //           "https://mojarnik-server.herokuapp.com/api/accounts/profilmahasiswa/?user=" +
-            //               sharedPreferences.getInt("userId").toString()),
-            //       headers: {
-            //         'Content-type': 'application/json',
-            //         'Accept': 'application/json',
-            //         'Authorization':
-            //             'token ' + sharedPreferences.getString("token")
-            //       });
-            //   if (response.statusCode == 200) {
-            //     var jsonData = jsonDecode(response.body);
-            //     String jsonDataString = json.encode(jsonData[0]);
-            //     final jsonDataa = jsonDecode(jsonDataString);
-            //     sharedPreferences.setInt("profilId", jsonDataa["id"]);
-            //     sharedPreferences.setInt("prodi", jsonDataa["prodi"]);
-            //     sharedPreferences.setString("semester", jsonDataa["semester"]);
-            //     sharedPreferences.setString("kelas", jsonDataa["kelas"]);
-            return Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => HomePage(
-                        // kelas: sharedPreferences.getString("kelas"),
-                        // prodi: sharedPreferences.getInt("prodi"),
-                        // semester: sharedPreferences.getString("semester"),
-                        )),
-                (Route<dynamic> route) => false);
-            //   }
-            //   return null;
-            // } catch (e) {
-            //   print(e);
-            // }
+            try {
+              response = await http.get(
+                  Uri.parse(
+                      "http://mojarnik.online/api/accounts/profilmahasiswa/?user=" +
+                          sharedPreferences.getInt("userId").toString()),
+                  headers: {
+                    'Content-type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization':
+                        'token ' + sharedPreferences.getString("token")
+                  });
+              if (response.statusCode == 200) {
+                var jsonData = response.body;
+                String jsonDataString = jsonData.toString();
+                final jsonDataa = jsonDecode(jsonDataString);
+                sharedPreferences.setString("nim", jsonDataa[0]["nim"]);
+                return Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => HomePage(
+                              page: 0,
+                            )),
+                    (Route<dynamic> route) => false);
+              }
+            } catch (e) {
+              print("Gagal get profilUser");
+              print(e);
+            }
           }
         } catch (e) {
           print(e);
@@ -214,29 +242,14 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       setState(() {});
     }
-    // if (username == "tes" && password == "tes") {
-    //   return Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(
-    //       builder: (BuildContext context) => HomePage(),
-    //     ),
-    //   );
-    // }
   }
 
-  checkLoginStatus() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("token") != null) {
-      return Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-              builder: (context) => new HomePage(
-
-                  // kelas: sharedPreferences.getString("kelas"),
-                  // prodi: sharedPreferences.getInt("prodi"),
-                  // semester: sharedPreferences.getString("semester"),
-                  )),
-          (Route<dynamic> route) => false);
-    }
-  }
+  // checkLoginStatus() async {
+  //   sharedPreferences = await SharedPreferences.getInstance();
+  //   if (sharedPreferences.getString("token") != null) {
+  //     secondLogin();
+  //   }
+  // }
 
   Future<bool> _onWillPop() async {
     return (await showDialog(
@@ -260,6 +273,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void initState() {
+    // checkConnection();
+    super.initState();
+    // checkLoginStatus();
+  }
+
   Widget build(BuildContext context) {
     final node = FocusScope.of(context);
     SystemChrome.setEnabledSystemUIOverlays([]);
