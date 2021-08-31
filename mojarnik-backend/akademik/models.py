@@ -17,7 +17,7 @@ class Jurusan(models.Model):
         verbose_name_plural = 'jurusan'
 
     def __str__(self):
-        return self.user.nama
+        return self.nama
 
 
 class ProgramStudi(models.Model):

@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    
 
     # Third-party
     'allauth',
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_generators',
     # 'admin_reorder',
     'django_extensions',
 
@@ -85,7 +87,8 @@ TEMPLATES = [
 ]
 
 # DATABASES
-# ------------------------------------------------------------------------------
+# ---
+# ---------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
@@ -93,6 +96,17 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql', 
+#         'NAME': 'mojarnik',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+#         'PORT': '3306',
+#     }
+# }
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
