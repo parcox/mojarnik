@@ -752,7 +752,7 @@ class CommentWidget extends StatelessWidget {
                       height: 30,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        user.firstName + " " + user.lastName,
+                        (user.firstName + " " + user.lastName).capitalizeFirstofEach,
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 15),
                         textAlign: TextAlign.start,

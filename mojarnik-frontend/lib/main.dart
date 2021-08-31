@@ -172,6 +172,40 @@ class _LoginPageState extends State<LoginPage> {
             jsonData = response.body;
             String jsonDataString = jsonData.toString();
             final jsonDataa = jsonDecode(jsonDataString);
+            if (jsonDataa["role"] != 1 || jsonDataa["username"] == "admin") {
+              return NAlertDialog(
+                dialogStyle: DialogStyle(backgroundColor: Colors.white),
+                title: Text(
+                  "Peringatan",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xff0ABDB6),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                content: Text(
+                  "Anda tidak memiliki akses untuk masuk",
+                  style: TextStyle(color: Color(0xff0ABDB6)),
+                ),
+                actions: [
+                  TextButton(
+                    child: Text(
+                      "Kembali Login",
+                      style: TextStyle(
+                        color: Color(0xff0ABDB6),
+                      ),
+                    ),
+                    onPressed: () {
+                      sharedPreferences.clear();
+                      Navigator.pop(context);
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                  )
+                ],
+              ).show(context);
+            }
             sharedPreferences.setString("user_name",
                 jsonDataa["first_name"] + " " + jsonDataa["last_name"]);
             sharedPreferences.setString("foto", jsonDataa["foto"]);
@@ -191,12 +225,39 @@ class _LoginPageState extends State<LoginPage> {
                 String jsonDataString = jsonData.toString();
                 final jsonDataa = jsonDecode(jsonDataString);
                 sharedPreferences.setString("nim", jsonDataa[0]["nim"]);
-                return Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => HomePage(
-                              page: 0,
-                            )),
-                    (Route<dynamic> route) => false);
+                try {
+                  response = await http.patch(
+                      Uri.parse(
+                          "http://mojarnik.online/api/accounts/customuser/" +
+                              sharedPreferences.getInt("userId").toString() +
+                              "/"),
+                      body: {
+                        "last_login": DateTime.now().toString()
+                      },
+                      headers: {
+                        'Authorization':
+                            'token ' + sharedPreferences.getString("token")
+                      });
+                  if (response.statusCode == 200) {
+                    var jsonData = response.body;
+                    String jsonDataString = jsonData.toString();
+                    final jsonDataa = jsonDecode(jsonDataString);
+                    print("Sukses patch");
+                    print(jsonDataa["last_login"].toString());
+                    return Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(
+                                  page: 0,
+                                  settingMode: false,
+                                )),
+                        (Route<dynamic> route) => false);
+                  } else {
+                    print(response.body);
+                  }
+                } catch (e) {
+                  print("Salah patch");
+                  print(e);
+                }
               }
             } catch (e) {
               print("Gagal get profilUser");

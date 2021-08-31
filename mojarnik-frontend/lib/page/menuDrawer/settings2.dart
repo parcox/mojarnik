@@ -85,7 +85,10 @@ class _SecondPageState extends State<SecondPage> {
       dioo.options.headers["Authorization"] = "token $token";
       FormData formData = new FormData.fromMap(
           // {"foto": await http.MultipartFile.fromPath("foto", _image.path)});
-          {"foto": await MultipartFile.fromFile(_image.path)});
+          {
+            "foto": await MultipartFile.fromFile(_image.path),
+            "last_login": DateTime.now().toString(),
+          });
       var response = await dioo.patch(
         "http://mojarnik.online/api/accounts/customuser/" +
             user.id.toString() +
@@ -137,6 +140,7 @@ class _SecondPageState extends State<SecondPage> {
   }
 
   getData() async {
+    print(sharedPreferences.getInt("userId"));
     http.Response response;
     try {
       response = await http.get(
@@ -170,15 +174,16 @@ class _SecondPageState extends State<SecondPage> {
             });
           }
         } catch (e) {
+          print("Salah get mahasiswa");
+
           print(e);
-          return print("Salah get mahasiswa");
         }
 
         // print(user.username);
       }
     } catch (e) {
+      print("Salah get user");
       print(e);
-      return print("Salah get user");
     }
   }
 
@@ -245,6 +250,7 @@ class _SecondPageState extends State<SecondPage> {
                 "last_name": lastName,
                 "gender": gender.toString(),
                 "no_hp": noHp,
+                "last_login": DateTime.now().toString(),
                 // _image != null
                 //     ? "foto"
                 //     : http.MultipartFile.fromPath("foto", _image.path): null,
@@ -269,6 +275,7 @@ class _SecondPageState extends State<SecondPage> {
                 MaterialPageRoute(
                     builder: (context) => HomePage(
                           page: 2,
+                          settingMode: true,
                         )),
                 (Route<dynamic> route) => false);
           } else {
@@ -302,7 +309,7 @@ class _SecondPageState extends State<SecondPage> {
                     height: 150,
                     width: 150,
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: Colors.grey,
                       shape: BoxShape.circle,
                     ),
                     child: tampilkanImage2()),

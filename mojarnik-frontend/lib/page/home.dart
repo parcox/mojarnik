@@ -19,9 +19,10 @@ class HomePage extends StatefulWidget {
   // final String semester;
   // final String kelas;
   int page;
+  bool settingMode;
   HomePage({
     Key key,
-    this.page
+    this.page, this.settingMode,
     //  this.prodi, this.semester, this.kelas
   }) : super(key: key);
   @override
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   // List _gender = ["Perempuan", "Laki-laki"];
   SharedPreferences sharedPreferences;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  bool settingMode = false;
+  
   bool edit = false;
   String helpContent = """ 
   Tes
@@ -56,6 +57,7 @@ class _HomePageState extends State<HomePage> {
         TextButton(
           onPressed: () {
             sharedPreferences.clear();
+            sharedPreferences.commit();
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => LoginPage()),
                 (Route<dynamic> route) => false);
@@ -178,7 +180,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.white,
           centerTitle: true,
           actions: [
-            settingMode
+            widget.settingMode
                 ? TextButton(
                     onPressed: () {
                       setState(() {
@@ -324,7 +326,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       widget.page = 0;
-                      settingMode = false;
+                      widget.settingMode = false;
                     });
                     Navigator.pop(context);
                   },
@@ -334,7 +336,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       widget.page = 1;
-                      settingMode = false;
+                      widget.settingMode = false;
                     });
                     Navigator.pop(context);
                   },
@@ -344,7 +346,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       widget.page = 2;
-                      settingMode = true;
+                      widget.settingMode = true;
                     });
                     Navigator.pop(context);
                   },
@@ -354,7 +356,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     setState(() {
                       widget.page = 3;
-                      settingMode = false;
+                      widget.settingMode = false;
                     });
                     Navigator.pop(context);
                   },

@@ -1,3 +1,10 @@
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -20,17 +27,21 @@ class ReadingPage extends StatefulWidget {
 }
 
 class _ReadingPageState extends State<ReadingPage> {
+  GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
   bool adding = false;
   FocusNode fcComment = FocusNode();
   bool userFilled = false;
   TextEditingController tfBookmark = TextEditingController();
-  PdfViewerController _pdfViewerController;
+  PdfViewerController _pdfViewerController = PdfViewerController();
   OverlayEntry _overlayEntry;
   SharedPreferences sharedPreferences;
   TextEditingController comment = TextEditingController();
   bool isError = false;
   bool isLoading = false;
+  Uint8List _documentBytes;
   String error = "";
+  double yOffset = 0.0;
+  double xOffset = 0.0;
   List<User> listUser = [];
   void showBottom() {
     showFlexibleBottomSheet(
@@ -43,12 +54,18 @@ class _ReadingPageState extends State<ReadingPage> {
     );
   }
 
+  getBytes() async {
+    _documentBytes = await http.readBytes(Uri.parse(widget.modul.file));
+    setState(() {});
+  }
+
   List mapResponse;
   getUser() async {
+    print(sharedPreferences.getString("token"));
     try {
       http.Response response;
       response = await http.get(
-          Uri.parse("http://mojarnik.online/api/accounts/customuser/"),
+          Uri.parse("http://mojarnik.online/api/accounts/customuser/?role=1"),
           headers: {
             'Content-type': 'application/json',
             'Accept': 'application/json',
@@ -58,12 +75,19 @@ class _ReadingPageState extends State<ReadingPage> {
         var jsonData = jsonDecode(response.body);
         for (var i = 0; i < jsonData.length; i++) {
           listUser.add(User.fromJson(jsonData[i]));
+          print(User.fromJson(jsonData[i]).username);
         }
         setState(() {
           userFilled = true;
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      print("gagal get user");
+      print(e);
+      setState(() {
+        userFilled = true;
+      });
+    }
   }
 
   // Future<List<User>> futureGetUser() async {
@@ -144,6 +168,7 @@ class _ReadingPageState extends State<ReadingPage> {
         setState(() {
           comment.clear();
           FocusManager.instance.primaryFocus?.unfocus();
+          adding=false;
         });
         //
       } else
@@ -159,6 +184,7 @@ class _ReadingPageState extends State<ReadingPage> {
   @override
   void initState() {
     // TODO: implement initState
+    getBytes();
     _pdfViewerController = PdfViewerController();
     super.initState();
     initPreference();
@@ -228,20 +254,16 @@ class _ReadingPageState extends State<ReadingPage> {
                         controller: comment,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          suffixIcon: adding?CircularProgressIndicator():InkWell(
-                            onTap: () {
-                              adding=true;
-                              addComment(comment.text, widget.modul.id,
-                                  sharedPreferences.getInt("userId"));
-                            },
-                            child: isLoading
-                                ? Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xff0ABDB6).withOpacity(0.7),
-                                    ),
-                                  )
-                                : Icon(Icons.send),
-                          ),
+                          suffixIcon: adding
+                              ? CircularProgressIndicator()
+                              : InkWell(
+                                  onTap: () {
+                                    adding = true;
+                                    addComment(comment.text, widget.modul.id,
+                                        sharedPreferences.getInt("userId"));
+                                  },
+                                  child: Icon(Icons.send),
+                                ),
                         ),
                         maxLength: 500,
                         maxLines: null,
@@ -257,75 +279,81 @@ class _ReadingPageState extends State<ReadingPage> {
                 ),
               ),
             ],
-            body: GestureDetector(
-              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-              child: FutureBuilder<List<Komentar>>(
-                future: getComment(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var komen = List.from(snapshot.data)
-                        .where((element) => element.dokumen == widget.modul.id);
-                    return Container(
-                        color: Colors.white,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: komen.map((e) => CommentWidget(
-                              komen: e,
-                              user: listUser.firstWhere((element) => element.id==e.user),
-                            )).toList(),
-                            // children: komen
-                            //     .map(
-                            //       (e) => FutureBuilder<List<User>>(
-                            //         future: getUser(),
-                            //         builder: (context, snapshot) {
-                            //           try {
-                            //             var user = List.from(snapshot.data)
-                            //                 .firstWhere((element) =>
-                            //                     element.id == e.user);
-                            //             if (snapshot.hasData) {
-                            //               return CommentWidget(
-                            //                 komen: e,
-                            //                 user: user,
-                            //               );
-                            //             }
-                            //           } catch (e) {}
-                            //           return Container();
-                            //         },
-                            //       ),
-                            //     )
-                            //     .toList(),
-                            // children: komen
-                            //     .map(
-                            //       (e) => FutureBuilder<List<User>>(
-                            //         future: futureGetUser(),
-                            //         builder: (context, snapshot) {
-                            //           try {
-                            //             var user = List.from(snapshot.data)
-                            //                 .firstWhere((element) =>
-                            //                     element.id == e.user);
-                            //             if (snapshot.hasData) {
-                            //               return CommentWidget(
-                            //                 komen: e,
-                            //                 user: user,
-                            //               );
-                            //             }
-                            //           } catch (e) {}
-                            //           return Container();
-                            //         },
-                            //       ),
-                            //     )
-                            //     .toList(),
+            body: listUser == null
+                ? Container()
+                : GestureDetector(
+                    onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                    child: FutureBuilder<List<Komentar>>(
+                      future: getComment(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          var komen = List.from(snapshot.data).where(
+                              (element) => element.dokumen == widget.modul.id);
+                          return Container(
+                              color: Colors.white,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: komen
+                                      .map((e) => CommentWidget(
+                                            komen: e,
+                                            user: listUser.firstWhere(
+                                                (element) =>
+                                                    element.id == e.user),
+                                          ))
+                                      .toList(),
+                                  // children: komen
+                                  //     .map(
+                                  //       (e) => FutureBuilder<List<User>>(
+                                  //         future: getUser(),
+                                  //         builder: (context, snapshot) {
+                                  //           try {
+                                  //             var user = List.from(snapshot.data)
+                                  //                 .firstWhere((element) =>
+                                  //                     element.id == e.user);
+                                  //             if (snapshot.hasData) {
+                                  //               return CommentWidget(
+                                  //                 komen: e,
+                                  //                 user: user,
+                                  //               );
+                                  //             }
+                                  //           } catch (e) {}
+                                  //           return Container();
+                                  //         },
+                                  //       ),
+                                  //     )
+                                  //     .toList(),
+                                  // children: komen
+                                  //     .map(
+                                  //       (e) => FutureBuilder<List<User>>(
+                                  //         future: futureGetUser(),
+                                  //         builder: (context, snapshot) {
+                                  //           try {
+                                  //             var user = List.from(snapshot.data)
+                                  //                 .firstWhere((element) =>
+                                  //                     element.id == e.user);
+                                  //             if (snapshot.hasData) {
+                                  //               return CommentWidget(
+                                  //                 komen: e,
+                                  //                 user: user,
+                                  //               );
+                                  //             }
+                                  //           } catch (e) {}
+                                  //           return Container();
+                                  //         },
+                                  //       ),
+                                  //     )
+                                  //     .toList(),
+                                ),
+                              ));
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xff0ABDB6).withOpacity(0.7),
                           ),
-                        ));
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xff0ABDB6).withOpacity(0.7),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
           ),
         ),
       ),
@@ -407,6 +435,16 @@ class _ReadingPageState extends State<ReadingPage> {
                 context: context,
                 builder: (BuildContext context) => _buildPopupDialog(context),
               );
+            } else if (int.parse(tfBookmark.text) < 1) {
+              setState(() {
+                error = "Tidak dapat kurang dari halaman 1" +
+                    widget.modul.jumlahHalaman.toString();
+              });
+              Navigator.of(context).pop();
+              return showDialog(
+                context: context,
+                builder: (BuildContext context) => _buildPopupDialog(context),
+              );
             }
             error = "";
             addBookmark(int.parse(tfBookmark.text), widget.modul.id,
@@ -420,6 +458,217 @@ class _ReadingPageState extends State<ReadingPage> {
         ),
       ],
     );
+  }
+
+  _showContextMenu(
+    BuildContext context,
+    PdfTextSelectionChangedDetails details,
+  ) {
+    final RenderBox renderBoxContainer =
+        context.findRenderObject() as RenderBox;
+    if (renderBoxContainer != null) {
+      final double _kContextMenuHeight = 30;
+      final double _kContextMenuWidth = 100;
+      final double _kHeight = 18;
+      final Offset containerOffset = renderBoxContainer.localToGlobal(
+        renderBoxContainer.paintBounds.topLeft,
+      );
+      if (details != null &&
+              containerOffset.dy < details.globalSelectedRegion.topLeft.dy ||
+          (containerOffset.dy <
+                  details.globalSelectedRegion.center.dy -
+                      (_kContextMenuHeight / 2) &&
+              details.globalSelectedRegion.height > _kContextMenuWidth)) {
+        double top = 0.0;
+        double left = 0.0;
+        final Rect globalSelectedRect = details.globalSelectedRegion;
+        if ((globalSelectedRect.top) > MediaQuery.of(context).size.height / 2) {
+          top = globalSelectedRect.topLeft.dy +
+              details.globalSelectedRegion.height +
+              _kHeight;
+          left = globalSelectedRect.bottomLeft.dx;
+        } else {
+          top = globalSelectedRect.height > _kContextMenuWidth
+              ? globalSelectedRect.center.dy - (_kContextMenuHeight / 2)
+              : globalSelectedRect.topLeft.dy +
+                  details.globalSelectedRegion.height +
+                  _kHeight;
+          left = globalSelectedRect.height > _kContextMenuWidth
+              ? globalSelectedRect.center.dx - (_kContextMenuWidth / 2)
+              : globalSelectedRect.bottomLeft.dx;
+        }
+        final OverlayState _overlayState =
+            Overlay.of(context, rootOverlay: true);
+        _overlayEntry = OverlayEntry(
+          builder: (context) => Positioned(
+            top: top,
+            left: left,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xFFFFFFFF),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.14),
+                    blurRadius: 2,
+                    offset: Offset(0, 0),
+                  ),
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.12),
+                    blurRadius: 2,
+                    offset: Offset(0, 2),
+                  ),
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.2),
+                    blurRadius: 3,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+              constraints: BoxConstraints.tightFor(
+                  width: _kContextMenuWidth, height: _kContextMenuHeight),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _addAnnotation('Highlight', details.selectedText),
+                  // _addAnnotation('Underline', details.selectedText),
+                  // _addAnnotation('Strikethrough', details.selectedText),
+                ],
+              ),
+            ),
+          ),
+        );
+        _overlayState?.insert(_overlayEntry);
+      }
+    }
+  }
+
+  Widget _addAnnotation(String annotationType, String selectedText) {
+    return Container(
+      height: 30,
+      width: 100,
+      child: RawMaterialButton(
+        onPressed: () async {
+          _checkAndCloseContextMenu();
+          await Clipboard.setData(ClipboardData(text: selectedText));
+          _drawAnnotation(annotationType);
+        },
+        child: Text(
+          annotationType,
+          style: TextStyle(
+              color: Color(0xFF000000),
+              fontSize: 10,
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400),
+        ),
+      ),
+    );
+  }
+
+  ///Draw the annotation in a PDF document.
+  void _drawAnnotation(String annotationType) {
+    final PdfDocument document = PdfDocument(inputBytes: _documentBytes);
+    switch (annotationType) {
+      case 'Highlight':
+        {
+          _pdfViewerKey.currentState
+              .getSelectedTextLines()
+              .forEach((pdfTextLine) {
+            final PdfPage _page = document.pages[pdfTextLine.pageNumber];
+            final PdfRectangleAnnotation rectangleAnnotation =
+                PdfRectangleAnnotation(
+                    pdfTextLine.bounds, 'Highlight Annotation',
+                    author: 'Syncfusion',
+                    color: PdfColor.fromCMYK(0, 0, 255, 0),
+                    innerColor: PdfColor.fromCMYK(0, 0, 255, 0),
+                    opacity: 0.5);
+            _page.annotations.add(rectangleAnnotation);
+            _page.annotations.flattenAllAnnotations();
+            xOffset = _pdfViewerController.scrollOffset.dx;
+            yOffset = _pdfViewerController.scrollOffset.dy;
+          });
+          final List<int> bytes = document.save();
+          setState(() {
+            _documentBytes = Uint8List.fromList(bytes);
+          });
+        }
+        break;
+      // case 'Underline':
+      //   {
+      //     _pdfViewerKey.currentState
+      //         .getSelectedTextLines()
+      //         .forEach((pdfTextLine) {
+      //       final PdfPage _page = document.pages[pdfTextLine.pageNumber];
+      //       final PdfLineAnnotation lineAnnotation = PdfLineAnnotation(
+      //         [
+      //           pdfTextLine.bounds.left.toInt(),
+      //           (document.pages[pdfTextLine.pageNumber].size.height –
+      //                   pdfTextLine.bounds.bottom)
+      //               .toInt(),
+      //           pdfTextLine.bounds.right.toInt(),
+      //           (document.pages[pdfTextLine.pageNumber].size.height –
+      //                   pdfTextLine.bounds.bottom)
+      //               .toInt()
+      //         ],
+      //         'Underline Annotation',
+      //         author: 'Syncfusion',
+      //         innerColor: PdfColor(0, 255, 0),
+      //         color: PdfColor(0, 255, 0),
+      //       );
+      //       _page.annotations.add(lineAnnotation);
+      //       _page.annotations.flattenAllAnnotations();
+      //       xOffset = _pdfViewerController.scrollOffset.dx;
+      //       yOffset = _pdfViewerController.scrollOffset.dy;
+      //     });
+      //     final List<int> bytes = document.save();
+      //     setState(() {
+      //       _documentBytes = Uint8List.fromList(bytes);
+      //     });
+      //   }
+      //   break;
+      // case 'Strikethrough':
+      //   {
+      //     _pdfViewerKey.currentState!
+      //         .getSelectedTextLines()
+      //         .forEach((pdfTextLine) {
+      //       final PdfPage _page = document.pages[pdfTextLine.pageNumber];
+      //       final PdfLineAnnotation lineAnnotation = PdfLineAnnotation(
+      //         [
+      //           pdfTextLine.bounds.left.toInt(),
+      //           ((document.pages[pdfTextLine.pageNumber].size.height –
+      //                       pdfTextLine.bounds.bottom) +
+      //                   (pdfTextLine.bounds.height / 2))
+      //               .toInt(),
+      //           pdfTextLine.bounds.right.toInt(),
+      //           ((document.pages[pdfTextLine.pageNumber].size.height –
+      //                       pdfTextLine.bounds.bottom) +
+      //                   (pdfTextLine.bounds.height / 2))
+      //               .toInt()
+      //         ],
+      //         'Strikethrough Annotation',
+      //         author: 'Syncfusion',
+      //         innerColor: PdfColor(255, 0, 0),
+      //         color: PdfColor(255, 0, 0),
+      //       );
+      //       _page.annotations.add(lineAnnotation);
+      //       _page.annotations.flattenAllAnnotations();
+      //       xOffset = _pdfViewerController.scrollOffset.dx;
+      //       yOffset = _pdfViewerController.scrollOffset.dy;
+      //     });
+      //     final List<int> bytes = document.save();
+      //     setState(() {
+      //       _documentBytes = Uint8List.fromList(bytes);
+      //     });
+      //   }
+      //   break;
+    }
+  }
+
+  /// Check and close the context menu.
+  void _checkAndCloseContextMenu() {
+    if (_overlayEntry != null) {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    }
   }
 
   @override
@@ -470,17 +719,38 @@ class _ReadingPageState extends State<ReadingPage> {
       ),
       body: Stack(
         children: [
-          Container(
-            child: SfPdfViewer.network(
-              widget.modul.file,
-              canShowPaginationDialog: true,
-              enableTextSelection: true,
-              initialScrollOffset: Offset(0, 0),
-              onDocumentLoaded: goto(),
-              searchTextHighlightColor: Colors.blue,
-              controller: _pdfViewerController,
-            ),
-          ),
+          // Container(
+          //   child: SfPdfViewer.network(
+          //     widget.modul.file,
+          //     canShowPaginationDialog: true,
+          //     enableTextSelection: true,
+          //     initialScrollOffset: Offset(0, 0),
+          //     onDocumentLoaded: goto(),
+          //     searchTextHighlightColor: Colors.blue,
+          //     controller: _pdfViewerController,
+          //   ),),
+          _documentBytes != null
+              ? Container(
+                  child: SfPdfViewer.memory(
+                    _documentBytes,
+                    key: _pdfViewerKey,
+                    canShowPaginationDialog: true,
+                    controller: _pdfViewerController,
+                    onDocumentLoaded: goto(),
+                    initialScrollOffset: Offset(0, 0),
+                    onTextSelectionChanged:
+                        (PdfTextSelectionChangedDetails details) {
+                      if (details.selectedText == null &&
+                          _overlayEntry != null) {
+                        _checkAndCloseContextMenu();
+                      } else if (details.selectedText != null &&
+                          _overlayEntry == null) {
+                        _showContextMenu(context, details);
+                      }
+                    },
+                  ),
+                )
+              : Container(),
           Column(
             children: [
               Expanded(

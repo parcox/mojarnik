@@ -37,32 +37,32 @@ class _FirstPageState extends State<FirstPage> {
   Jurusan jurusanMhs;
   SharedPreferences sharedPreferences;
   List mapResponse;
-  List<Widget> listWidget=[
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.grey.withOpacity(0.3),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.grey.withOpacity(0.3),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.grey.withOpacity(0.3),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.grey.withOpacity(0.3),
-                      ),
-                    ),
-                  ];
+  List<Widget> listWidget = [
+    Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.grey.withOpacity(0.3),
+      ),
+    ),
+    Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.grey.withOpacity(0.3),
+      ),
+    ),
+    Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.grey.withOpacity(0.3),
+      ),
+    ),
+    Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.grey.withOpacity(0.3),
+      ),
+    ),
+  ];
 
   Future<List<Modules>> getModules() async {
     http.Response response;
@@ -76,11 +76,9 @@ class _FirstPageState extends State<FirstPage> {
           });
       if (response.statusCode == 200) {
         List mapResponse = json.decode(response.body);
-        if (jumlahModul == 0) {
-          setState(() {
-            jumlahModul = mapResponse.length;
-          });
-        }
+        setState(() {
+          jumlahModul = mapResponse.length;
+        });
         return mapResponse.map((e) => Modules.fromJson(e)).toList().cast();
       }
 
@@ -107,8 +105,7 @@ class _FirstPageState extends State<FirstPage> {
         try {
           http.Response response;
           response = await http.get(
-              Uri.parse(
-                  "http://mojarnik.online/api/akademik/programstudi/"),
+              Uri.parse("http://mojarnik.online/api/akademik/programstudi/"),
               headers: {
                 'Content-type': 'application/json',
                 'Accept': 'application/json',
@@ -123,8 +120,7 @@ class _FirstPageState extends State<FirstPage> {
             try {
               http.Response response;
               response = await http.get(
-                  Uri.parse(
-                      "http://mojarnik.online/api/akademik/jurusan/"),
+                  Uri.parse("http://mojarnik.online/api/akademik/jurusan/"),
                   headers: {
                     'Content-type': 'application/json',
                     'Accept': 'application/json',
@@ -177,7 +173,7 @@ class _FirstPageState extends State<FirstPage> {
       }
     } catch (e) {
       print("Gagal get mahasiswa");
-      
+
       print(e);
     }
   }
@@ -272,7 +268,9 @@ class _FirstPageState extends State<FirstPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
                             done
-                                ? prodiMhs.nama.capitalizeFirstofEach
+                                ? prodiMhs.jenjang +
+                                    " " +
+                                    prodiMhs.nama.capitalizeFirstofEach
                                 : "Program Studi",
                             // widget.prodi.toString(),
                             // "prodi",
@@ -355,18 +353,29 @@ class _FirstPageState extends State<FirstPage> {
               future: getModules(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
+                  // var modul = List.from(snapshot.data.where((mo) =>
+                  //     makul
+                  //         .firstWhere((ma) => mo.mataKuliah == mo.mataKuliah)
+                  //         .programStudi ==
+                  //     mahasiswa.prodi));
                   var modul = List.from(snapshot.data);
-                  return GridView.count(
-                      padding: EdgeInsets.symmetric(horizontal: 2),
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
-                      crossAxisCount: 2,
-                      children: secondDone?modul
-                          .map((e) => Module(
-                                modul: e,
-                                makul: makul,
-                              ))
-                          .toList():listWidget);
+                  try {
+                    return GridView.count(
+                        padding: EdgeInsets.symmetric(horizontal: 2),
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                        crossAxisCount: 2,
+                        children: secondDone
+                            ? modul
+                                .map((e) => Module(
+                                      modul: e,
+                                      makul: makul,
+                                    ))
+                                .toList()
+                            : listWidget);
+                  } catch (e) {
+                    print(e);
+                  }
                 } else if (snapshot.hasError) {
                   return Container(
                     color: Colors.black.withOpacity(0.1),
