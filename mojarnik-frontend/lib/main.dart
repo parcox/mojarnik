@@ -534,14 +534,14 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(bottom: 5),
+                        alignment: Alignment.bottomCenter,
+                        child: Text("Copyright © 2021 Patra Purbaya"),
+                      ),
+                    ),
                   ],
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 5),
-                  alignment: Alignment.bottomCenter,
-                  child: Text("Copyright © 2021 Patra Purbaya"),
                 ),
               ),
             ],
