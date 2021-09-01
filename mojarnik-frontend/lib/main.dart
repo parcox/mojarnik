@@ -372,6 +372,7 @@ class _LoginPageState extends State<LoginPage> {
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Image(
                       image: AssetImage(
