@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:mojarnik/instansi/jurusan.dart';
 import 'package:mojarnik/instansi/makul.dart';
 import 'package:mojarnik/moduleClass/module.dart';
+import 'package:mojarnik/userClass/profilMahasiswa.dart';
 import 'package:mojarnik/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchPage extends StatefulWidget {
+  final Mahasiswa mahasiswa;
+  final List<MataKuliah> makul;
+  const SearchPage({Key key, this.mahasiswa, this.makul}) : super(key: key);
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -179,7 +183,15 @@ class _SearchPageState extends State<SearchPage> {
                     future: getModules(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        var modul = snapshot.data.where((x) =>
+                        var modul1 = List.from(snapshot.data.where((mo) =>
+                        (makul
+                            .firstWhere((ma) => ma.id == mo.mataKuliah)
+                            .programStudi) ==
+                        widget.mahasiswa.prodi&&(makul
+                            .firstWhere((ma) => ma.id == mo.mataKuliah)
+                            .semester) ==
+                        widget.mahasiswa.semester));
+                        var modul = modul1.where((x) =>
                             x.judul.toLowerCase().contains(
                                 searchController.text.toLowerCase()) ||
                             // (makul.where(

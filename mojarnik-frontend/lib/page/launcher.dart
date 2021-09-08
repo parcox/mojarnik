@@ -33,6 +33,7 @@ class _LauncherPageState extends State<LauncherPage> {
               MaterialPageRoute(
                   builder: (context) => HomePage(
                         page: 0,
+                        settingMode: false,
                       )),
               (Route<dynamic> route) => false);
           break;

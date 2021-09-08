@@ -76,9 +76,9 @@ class _FirstPageState extends State<FirstPage> {
           });
       if (response.statusCode == 200) {
         List mapResponse = json.decode(response.body);
-        setState(() {
-          jumlahModul = mapResponse.length;
-        });
+        // setState(() {
+        // jumlahModul = mapResponse.length;
+        // });
         return mapResponse.map((e) => Modules.fromJson(e)).toList().cast();
       }
 
@@ -313,11 +313,13 @@ class _FirstPageState extends State<FirstPage> {
               centerTitle: true,
               title: Center(
                 child: Container(
-                  width: 240,
+                  // width: 240,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
                       color: Color(0xff11BCB7).withOpacity(0.5),
                       borderRadius: BorderRadius.circular(15)),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
@@ -329,7 +331,7 @@ class _FirstPageState extends State<FirstPage> {
                         width: 2,
                       ),
                       Text(
-                        "$jumlahModul Modules Available",
+                        "Modul yang tersedia",
                         style: TextStyle(fontSize: 15, color: Colors.white),
                       )
                     ],
@@ -353,29 +355,43 @@ class _FirstPageState extends State<FirstPage> {
               future: getModules(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  // var modul = List.from(snapshot.data.where((mo) =>
-                  //     makul
-                  //         .firstWhere((ma) => mo.mataKuliah == mo.mataKuliah)
-                  //         .programStudi ==
-                  //     mahasiswa.prodi));
                   var modul = List.from(snapshot.data);
+                  // try {
+                  //   modul = List.from(snapshot.data.where((mo) =>
+                  //       makul
+                  //           .firstWhere((ma) => mo.mataKuliah == mo.mataKuliah)
+                  //           .programStudi ==
+                  //       mahasiswa.prodi));
+                  //       print("sukses");
+                  // } catch (e) {
+                  // }
                   try {
-                    return GridView.count(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
-                        crossAxisSpacing: 5,
-                        mainAxisSpacing: 5,
-                        crossAxisCount: 2,
-                        children: secondDone
-                            ? modul
-                                .map((e) => Module(
-                                      modul: e,
-                                      makul: makul,
-                                    ))
-                                .toList()
-                            : listWidget);
-                  } catch (e) {
-                    print(e);
-                  }
+                    modul = List.from(snapshot.data.where((mo) =>
+                        (makul
+                            .firstWhere((ma) => ma.id == mo.mataKuliah)
+                            .programStudi) ==
+                        mahasiswa.prodi&&(makul
+                            .firstWhere((ma) => ma.id == mo.mataKuliah)
+                            .semester) ==
+                        mahasiswa.semester));
+                    print("sukses");
+                  } catch (e) {}
+
+                  modul.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+
+                  return GridView.count(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
+                      crossAxisCount: 2,
+                      children: secondDone
+                          ? modul
+                              .map((e) => Module(
+                                    modul: e,
+                                    makul: makul,
+                                  ))
+                              .toList()
+                          : listWidget);
                 } else if (snapshot.hasError) {
                   return Container(
                     color: Colors.black.withOpacity(0.1),
@@ -428,7 +444,10 @@ class _FirstPageState extends State<FirstPage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (BuildContext context) => SearchPage()));
+                        builder: (BuildContext context) => SearchPage(
+                          mahasiswa: mahasiswa,
+                          makul: makul,
+                        )));
               },
               child: PhysicalModel(
                 shape: BoxShape.circle,

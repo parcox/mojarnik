@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:pdfdownload/pdfdownload.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -168,7 +169,7 @@ class _ReadingPageState extends State<ReadingPage> {
         setState(() {
           comment.clear();
           FocusManager.instance.primaryFocus?.unfocus();
-          adding=false;
+          adding = false;
         });
         //
       } else
@@ -258,9 +259,12 @@ class _ReadingPageState extends State<ReadingPage> {
                               ? CircularProgressIndicator()
                               : InkWell(
                                   onTap: () {
-                                    adding = true;
-                                    addComment(comment.text, widget.modul.id,
-                                        sharedPreferences.getInt("userId"));
+                                    if (comment.text != "") {
+                                      addComment(comment.text, widget.modul.id,
+                                          sharedPreferences.getInt("userId"));
+                                    }
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                   },
                                   child: Icon(Icons.send),
                                 ),
@@ -287,6 +291,7 @@ class _ReadingPageState extends State<ReadingPage> {
                       future: getComment(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          snapshot.data.sort((a, b) => b.id.compareTo(a.id));
                           var komen = List.from(snapshot.data).where(
                               (element) => element.dokumen == widget.modul.id);
                           return Container(
@@ -437,7 +442,7 @@ class _ReadingPageState extends State<ReadingPage> {
               );
             } else if (int.parse(tfBookmark.text) < 1) {
               setState(() {
-                error = "Tidak dapat kurang dari halaman 1" +
+                error = "Tidak dapat kurang dari halaman " +
                     widget.modul.jumlahHalaman.toString();
               });
               Navigator.of(context).pop();
@@ -690,6 +695,16 @@ class _ReadingPageState extends State<ReadingPage> {
           ),
         ),
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: DownloandPdf(
+              isUseIcon: true,
+              pdfUrl: widget.modul.file,
+              fileNames: widget.modul.judul + ".pdf",
+              color: Color(0xff0ABDB6),
+              iconSize: 32,
+            ),
+          ),
           TextButton(
             child: Stack(
               alignment: Alignment.center,

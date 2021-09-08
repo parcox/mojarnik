@@ -192,7 +192,9 @@ class _FourthPageState extends State<FourthPage> {
               future: getBookmark(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  var bookmarks = List.from(snapshot.data).where((element) =>
+                  snapshot.data.sort(
+                      (a, b) => b.id.compareTo(a.id));
+                  var bookmarks = List.from(snapshot.data).reversed.where((element) =>
                       element.user == sharedPreferences.getInt("userId"));
                   return ListView(
                       children: bookmarks
@@ -214,7 +216,7 @@ class _FourthPageState extends State<FourthPage> {
                                             (moduls
                                                 .firstWhere((element) =>
                                                     element.id == modul.emodul)
-                                                .id),
+                                                .mataKuliah),
                                       ),
                                     );
                                   }

@@ -5,7 +5,6 @@ class Modules {
     this.jumlahModul,
     this.tanggal,
     this.mataKuliah,
-    this.penulis,
   });
 
   int id;
@@ -13,7 +12,6 @@ class Modules {
   int jumlahModul;
   DateTime tanggal;
   int mataKuliah;
-  dynamic penulis;
 
   factory Modules.fromJson(Map<String, dynamic> json) => Modules(
         id: json["id"] == null ? null : json["id"],
@@ -22,7 +20,6 @@ class Modules {
         tanggal:
             json["tanggal"] == null ? null : DateTime.parse(json["tanggal"]),
         mataKuliah: json["mata_kuliah"] == null ? null : json["mata_kuliah"],
-        penulis: json["penulis"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -33,6 +30,5 @@ class Modules {
             ? null
             : "${tanggal.year.toString().padLeft(4, '0')}-${tanggal.month.toString().padLeft(2, '0')}-${tanggal.day.toString().padLeft(2, '0')}",
         "mata_kuliah": mataKuliah == null ? null : mataKuliah,
-        "penulis": penulis,
       };
 }

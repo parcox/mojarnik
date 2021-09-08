@@ -135,6 +135,8 @@ class _ModuleDetailsState extends State<ModuleDetails> {
             future: getModuleDetail(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                snapshot.data.sort(
+                      (a, b) => a.id.compareTo(b.id));
                 var modulD = List.from(snapshot.data)
                     .where((x) => x.emodul == widget.modul.id);
                 return GridView.count(

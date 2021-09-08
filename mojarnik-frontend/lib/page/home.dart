@@ -22,7 +22,8 @@ class HomePage extends StatefulWidget {
   bool settingMode;
   HomePage({
     Key key,
-    this.page, this.settingMode,
+    this.page,
+    this.settingMode,
     //  this.prodi, this.semester, this.kelas
   }) : super(key: key);
   @override
@@ -33,16 +34,13 @@ class _HomePageState extends State<HomePage> {
   // List _gender = ["Perempuan", "Laki-laki"];
   SharedPreferences sharedPreferences;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   bool edit = false;
   String helpContent = """ 
-  Tes
-  Tes
-  Tes
+  MOJARNIK (Modul Ajar Elektronik) adalah aplikasi pembelajaran yang memudahkan pengajar dan pembelajar mewujudkan pendistribusian materi secara efektif. 
   """;
 
   List mapResponse;
-
 
   initPreference() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -204,8 +202,9 @@ class _HomePageState extends State<HomePage> {
                               color: Color(0xff0ABDB6)),
                         ),
                         content: Container(
+                          height: 100,
                           child:
-                              Text(helpContent, textAlign: TextAlign.justify),
+                              Text(helpContent, textAlign: TextAlign.center,maxLines: 10,),
                         ),
                         dismissable: false,
                         actions: [
@@ -218,24 +217,7 @@ class _HomePageState extends State<HomePage> {
                               style: TextStyle(color: Color(0xff0ABDB6)),
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>LauncherPage()));
-                            },
-                            child: Text(
-                              "Launcher",
-                              style: TextStyle(color: Color(0xff0ABDB6)),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>PostImage()));
-                            },
-                            child: Text(
-                              "TestUpload",
-                              style: TextStyle(color: Color(0xff0ABDB6)),
-                            ),
-                          ),
+                          //
                         ],
                       ).show(context);
                     },
@@ -310,8 +292,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Text(
                   sharedPreferences.getString("nim") != null
-                      ? sharedPreferences
-                          .getString("nim")
+                      ? sharedPreferences.getString("nim")
                       : "NIM",
                   style: TextStyle(
                       fontSize: 17,

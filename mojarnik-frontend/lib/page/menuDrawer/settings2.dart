@@ -105,10 +105,11 @@ class _SecondPageState extends State<SecondPage> {
             MaterialPageRoute(
                 builder: (context) => HomePage(
                       page: 2,
+                      settingMode: true,
                     )),
             (Route<dynamic> route) => false);
       } else {
-        print(response.data);
+        return null;
       }
       // http.Response response;
       // FormData formData = FormData.fromMap({
@@ -275,7 +276,7 @@ class _SecondPageState extends State<SecondPage> {
                 MaterialPageRoute(
                     builder: (context) => HomePage(
                           page: 2,
-                          settingMode: true,
+                          settingMode: false,
                         )),
                 (Route<dynamic> route) => false);
           } else {
@@ -581,18 +582,33 @@ class _SecondPageState extends State<SecondPage> {
   }
 
   tampilkanImage2() {
-    if (_image == null) {
+    // if (_image == null) {
+    //   return Image(
+    //     image: NetworkImage(sharedPreferences.getString("foto")),
+    //     fit: BoxFit.cover,
+    //   );
+    // }
+    // return Image.file(
+    //   File(_image.path),
+    //   fit: BoxFit.cover,
+    // );
+    try {
+      if (_image == null) {
+        return Image(
+          image: NetworkImage(sharedPreferences.getString("foto")),
+          fit: BoxFit.cover,
+        );
+      }
+      return Image.file(
+        File(_image.path),
+        fit: BoxFit.cover,
+      );
+    } catch (e) {
       return Image(
-        image: sharedPreferences.getString("foto") == null
-            ? AssetImage("asset/markZuck.png")
-            : NetworkImage(sharedPreferences.getString("foto")),
+        image: AssetImage("asset/markZuck.png"),
         fit: BoxFit.cover,
       );
     }
-    return Image.file(
-      File(_image.path),
-      fit: BoxFit.cover,
-    );
   }
 
   NetworkImage tampilkanImage1() {

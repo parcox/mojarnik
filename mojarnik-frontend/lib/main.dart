@@ -117,6 +117,9 @@ class _LoginPageState extends State<LoginPage> {
 
   logIn(String username, String password) async {
     if (username == "" || password == "") {
+      setState(() {
+        _isLoading = false;
+      });
       return NAlertDialog(
         dialogStyle: DialogStyle(backgroundColor: Colors.white),
         title: Text(
@@ -141,6 +144,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             onPressed: () {
               Navigator.pop(context);
+              // _isLoading = false;
             },
           )
         ],
@@ -173,6 +177,9 @@ class _LoginPageState extends State<LoginPage> {
             String jsonDataString = jsonData.toString();
             final jsonDataa = jsonDecode(jsonDataString);
             if (jsonDataa["role"] != 1 || jsonDataa["username"] == "admin") {
+              setState(() {
+                _isLoading = false;
+              });
               return NAlertDialog(
                 dialogStyle: DialogStyle(backgroundColor: Colors.white),
                 title: Text(
@@ -295,6 +302,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               onPressed: () {
                 Navigator.pop(context);
+                _isLoading = false;
               },
             )
           ],
@@ -369,180 +377,189 @@ class _LoginPageState extends State<LoginPage> {
                       ]),
                 ),
               ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Image(
-                      image: AssetImage(
-                        "asset/polnep.png",
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                alignment: Alignment.center,
+                // color: Colors.red,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Image(
+                        image: AssetImage(
+                          "asset/polnep.png",
+                        ),
+                        height: 150,
+                        width: 150,
                       ),
-                      height: 150,
-                      width: 150,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Text(
-                        "MOJARNIK",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: "Stormfaze",
-                          fontSize: 30,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          "MOJARNIK",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "Stormfaze",
+                            fontSize: 30,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      width: 300,
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 50,
-                            // color: Colors.red,
-                            child: Container(
-                              child: Image(
-                                image: AssetImage("asset/person.png"),
-                                width: 25,
-                                height: 25,
-                              ),
-                            ),
-                          ),
-                          VerticalDivider(
-                            width: 0,
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: TextField(
-                                focusNode: fcUsername,
-                                textInputAction: TextInputAction.next,
-                                onEditingComplete: () => node.nextFocus(),
-                                controller: tfUsername,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Username",
-                                  hintStyle: TextStyle(
-                                      color: Colors.black.withOpacity(0.5)),
-                                ),
-                                cursorColor: Color(0xff00FFFF),
-                                style: TextStyle(),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      width: 300,
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 50,
-                            // color: Colors.red,
-                            child: Container(
-                              // transformAlignment: ,
-                              child: Transform.rotate(
-                                angle: 3.9,
+                      Container(
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        width: 300,
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              // color: Colors.red,
+                              child: Container(
                                 child: Image(
-                                  image: AssetImage("asset/key.png"),
+                                  image: AssetImage("asset/person.png"),
                                   width: 25,
                                   height: 25,
                                 ),
                               ),
                             ),
-                          ),
-                          VerticalDivider(
-                            width: 0,
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: TextField(
-                                controller: tfPassword,
-                                focusNode: fcPassword,
-                                textInputAction: TextInputAction.done,
-                                onSubmitted: (_) {
-                                  node.unfocus();
-                                  logIn(tfUsername.text, tfPassword.text);
-                                },
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Password",
-                                  hintStyle: TextStyle(
-                                      color: Colors.black.withOpacity(0.5)),
+                            VerticalDivider(
+                              width: 0,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: TextField(
+                                  focusNode: fcUsername,
+                                  textInputAction: TextInputAction.next,
+                                  onEditingComplete: () => node.nextFocus(),
+                                  controller: tfUsername,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Username",
+                                    hintStyle: TextStyle(
+                                        color: Colors.black.withOpacity(0.5)),
+                                  ),
+                                  cursorColor: Color(0xff00FFFF),
+                                  style: TextStyle(),
                                 ),
-                                cursorColor: Color(0xff00FFFF),
-                                style: TextStyle(),
                               ),
-                            ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    _isLoading
-                        ? Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        : TextButton(
-                            onPressed: () {
-                              node.unfocus();
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              logIn(tfUsername.text, tfPassword.text);
-                            },
-                            child: Container(
-                              height: 40,
-                              width: 40,
-                              child: Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
-                              ),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xff00FFFF),
-                                    Color(0xff00C9C9),
-                                    Color(0xff00FFFF),
-                                  ],
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        width: 300,
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              // color: Colors.red,
+                              child: Container(
+                                // transformAlignment: ,
+                                child: Transform.rotate(
+                                  angle: 3.9,
+                                  child: Image(
+                                    image: AssetImage("asset/key.png"),
+                                    width: 25,
+                                    height: 25,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.only(bottom: 5),
-                        alignment: Alignment.bottomCenter,
-                        child: Text("Copyright © 2021 Patra Purbaya"),
+                            VerticalDivider(
+                              width: 0,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: TextField(
+                                  controller: tfPassword,
+                                  focusNode: fcPassword,
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) {
+                                    node.unfocus();
+                                    setState(() {
+                                      _isLoading = true;
+                                    });
+                                    logIn(tfUsername.text, tfPassword.text);
+                                  },
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Password",
+                                    hintStyle: TextStyle(
+                                        color: Colors.black.withOpacity(0.5)),
+                                  ),
+                                  cursorColor: Color(0xff00FFFF),
+                                  style: TextStyle(),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      _isLoading
+                          ? Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : TextButton(
+                              onPressed: () {
+                                node.unfocus();
+                                setState(() {
+                                  _isLoading = true;
+                                });
+                                logIn(tfUsername.text, tfPassword.text);
+                              },
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xff00FFFF),
+                                      Color(0xff00C9C9),
+                                      Color(0xff00FFFF),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 5),
+                          alignment: Alignment.bottomCenter,
+                          child: Text("Copyright © 2021 Patra Purbaya"),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

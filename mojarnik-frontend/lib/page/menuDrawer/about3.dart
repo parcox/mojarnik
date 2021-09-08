@@ -21,19 +21,43 @@ class _ThirdPageState extends State<ThirdPage> {
                   image: AssetImage("asset/logoMojarnik.png"),
                 )),
           ),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Expanded(
             child: Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                border: Border.all()
-              ),
-              child: Column(
-                children: [
-                  Text("This is the description of this app"),
-                ],
-              )
-            ),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(border: Border.all()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("Dosen Pembimbing :",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("Fitri Wibowo, S.ST. MT."),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text("Front End Developer :",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("Patra Purbaya"),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text("Back End Developer :",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("Haris Hijazi"),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Please provide feedback for further development of the application", textAlign: TextAlign.center,),
+                      ),
+                    ),
+                  ],
+                )),
           ),
           Text("Copyright © 2021 Patra Purbaya")
         ],

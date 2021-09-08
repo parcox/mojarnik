@@ -39,12 +39,14 @@ class Module extends StatelessWidget {
     // ];
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => ModuleDetails(
-                  modul: modul,
-                  makul: makul
-                      .firstWhere((element) => element.id == modul.mataKuliah),
-                )));
+        if (modul.jumlahModul > 0) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => ModuleDetails(
+                    modul: modul,
+                    makul: makul.firstWhere(
+                        (element) => element.id == modul.mataKuliah),
+                  )));
+        }
       },
       child: PhysicalModel(
         color: Colors.transparent,
@@ -523,41 +525,41 @@ class SettingsItem extends StatelessWidget {
   }
 }
 
-class SettingItems extends StatelessWidget {
-  final User user;
-  const SettingItems({Key key, @required this.user}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Text(
-              "Name",
-              style: TextStyle(
-                color: Color(0xff939393),
-                fontSize: 18,
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  user.firstName + " " + user.lastName,
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Icon(Icons.edit),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-}
+// class SettingItems extends StatelessWidget {
+//   final User user;
+//   const SettingItems({Key key, @required this.user}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.only(top: 10),
+//             child: Text(
+//               "Name",
+//               style: TextStyle(
+//                 color: Color(0xff939393),
+//                 fontSize: 18,
+//               ),
+//             ),
+//           ),
+//           Row(
+//             children: [
+//               Expanded(
+//                 child: Text(
+//                   user.firstName + " " + user.lastName,
+//                   style: TextStyle(fontSize: 20),
+//                 ),
+//               ),
+//               Icon(Icons.edit),
+//             ],
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class BookmarksWidget extends StatelessWidget {
   // final String moduleTitle;
@@ -641,6 +643,8 @@ class BookmarksWidget extends StatelessWidget {
                 children: [
                   Text(
                     "Mata Kuliah " + makul.nama.capitalizeFirstofEach,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -648,6 +652,7 @@ class BookmarksWidget extends StatelessWidget {
                   ),
                   Text(
                     "Modul " + module.judul.capitalizeFirstofEach,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
@@ -660,30 +665,34 @@ class BookmarksWidget extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  Text(
-                    "Halaman " + bookmark.halaman.toString(),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        // Icon(Icons.date_range, size: 15, color: Colors.white,),
-                        Text(
-                          "Ditandai pada tanggal " +
-                              DateFormat("dd MMMM yyyy")
-                                  .format(bookmark.tanggal),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
+                  Row(
+                    children: [
+                      Text(
+                        "Halaman " + bookmark.halaman.toString(),
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
                         ),
-                      ],
-                    ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // Icon(Icons.date_range, size: 15, color: Colors.white,),
+                            Text(
+                              "Ditandai pada tanggal " +
+                                  DateFormat("dd MMMM yyyy")
+                                      .format(bookmark.tanggal),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -733,7 +742,9 @@ class CommentWidget extends StatelessWidget {
                   // color: Colors.grey,
                 ),
                 child: Image(
-                  image: NetworkImage(user.foto,),
+                  image: NetworkImage(
+                    user.foto,
+                  ),
                   fit: BoxFit.cover,
                 )),
             SizedBox(
@@ -752,7 +763,8 @@ class CommentWidget extends StatelessWidget {
                       height: 30,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        (user.firstName + " " + user.lastName).capitalizeFirstofEach,
+                        (user.firstName + " " + user.lastName)
+                            .capitalizeFirstofEach,
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 15),
                         textAlign: TextAlign.start,
